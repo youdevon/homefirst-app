@@ -1,10 +1,16 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableAboutContent } from "@/lib/about-content-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type AboutContentFormProps = {
   content: EditableAboutContent;
+  imageFiles: MediaSelectorOption[];
 };
 
-export default function AboutContentForm({ content }: AboutContentFormProps) {
+export default function AboutContentForm({
+  content,
+  imageFiles,
+}: AboutContentFormProps) {
   return (
     <form
       method="post"
@@ -24,12 +30,12 @@ export default function AboutContentForm({ content }: AboutContentFormProps) {
             />
           </label>
 
-          <label className="admin-field">
+          <label className="admin-field admin-field-full">
             <span>Background image URL</span>
-            <input
-              type="text"
+            <AdminMediaUrlField
               name="hero_backgroundImageUrl"
               defaultValue={content.hero.backgroundImageUrl}
+              options={imageFiles}
               required
               placeholder="/uploads/images/about-hero.jpg"
             />
@@ -232,10 +238,10 @@ export default function AboutContentForm({ content }: AboutContentFormProps) {
         <div className="admin-form-grid">
           <label className="admin-field admin-field-full">
             <span>Main image URL</span>
-            <input
-              type="text"
+            <AdminMediaUrlField
               name="images_mainImageUrl"
               defaultValue={content.images.mainImageUrl}
+              options={imageFiles}
               required
               placeholder="/uploads/images/about-main.jpg"
             />
@@ -243,10 +249,10 @@ export default function AboutContentForm({ content }: AboutContentFormProps) {
 
           <label className="admin-field admin-field-full">
             <span>Secondary image URL</span>
-            <input
-              type="text"
+            <AdminMediaUrlField
               name="images_secondaryImageUrl"
               defaultValue={content.images.secondaryImageUrl}
+              options={imageFiles}
               required
               placeholder="/uploads/images/about-secondary.jpg"
             />

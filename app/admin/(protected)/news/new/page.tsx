@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NewsForm from "@/components/admin/NewsForm";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function AdminNewNewsPage({
   searchParams,
 }: AdminNewNewsPageProps) {
   const params = searchParams ? await searchParams : {};
+  const mediaAssets = await getAdminMediaSelectorAssets();
   const showValidationError = params.error === "validation";
 
   return (
@@ -35,7 +37,11 @@ export default async function AdminNewNewsPage({
       ) : null}
 
       <div className="admin-panel">
-        <NewsForm action="/api/admin/news" submitLabel="Create News Item" />
+        <NewsForm
+          action="/api/admin/news"
+          submitLabel="Create News Item"
+          imageFiles={mediaAssets.imageFiles}
+        />
       </div>
     </div>
   );

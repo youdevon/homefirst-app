@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LeaderForm from "@/components/admin/LeaderForm";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function AdminNewLeaderPage({
   searchParams,
 }: AdminNewLeaderPageProps) {
   const params = searchParams ? await searchParams : {};
+  const mediaAssets = await getAdminMediaSelectorAssets();
   const showValidationError = params.error === "validation";
 
   return (
@@ -38,6 +40,7 @@ export default async function AdminNewLeaderPage({
         <LeaderForm
           action="/api/admin/leaders"
           submitLabel="Create Leader"
+          imageFiles={mediaAssets.imageFiles}
         />
       </div>
     </div>

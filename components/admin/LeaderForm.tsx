@@ -1,15 +1,19 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableLeader } from "@/lib/leaders-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type LeaderFormProps = {
   leader?: EditableLeader;
   action: string;
   submitLabel: string;
+  imageFiles: MediaSelectorOption[];
 };
 
 export default function LeaderForm({
   leader,
   action,
   submitLabel,
+  imageFiles,
 }: LeaderFormProps) {
   return (
     <form method="post" action={action} className="admin-settings-form">
@@ -60,12 +64,12 @@ export default function LeaderForm({
 
         <label className="admin-field admin-field-full">
           <span>Photo URL</span>
-          <input
-            type="text"
+          <AdminMediaUrlField
             name="photoUrl"
             defaultValue={leader?.photoUrl ?? ""}
+            options={imageFiles}
             required
-            placeholder="/images/leaders/name.jpg"
+            placeholder="/uploads/images/leader.jpg"
           />
         </label>
 

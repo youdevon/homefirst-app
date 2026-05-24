@@ -70,15 +70,12 @@ const pageContentSections = [
     },
   },
   {
-    sectionKey: "home.video",
+    sectionKey: "home.videos",
     title: videoSection.title,
     subtitle: videoSection.lead,
-    imageUrl: videoSection.mainVideo.image,
     metadata: {
       eyebrow: videoSection.eyebrow,
-      titleEmphasis: videoSection.titleEmphasis,
-      mainVideoAlt: videoSection.mainVideo.alt,
-      videos: videoSection.videos,
+      highlightedTitle: videoSection.titleEmphasis,
     },
   },
 ];
@@ -196,6 +193,32 @@ async function main() {
         imageUrl: item.image,
         published: true,
         publishedAt: parsePublishedAt(item.date),
+      },
+    });
+  }
+
+  console.log("Seeding homepage videos...");
+  for (const [index, video] of videoSection.videos.entries()) {
+    await prisma.homepageVideo.upsert({
+      where: { id: `seed-homepage-video-${index + 1}` },
+      update: {
+        title: video.title,
+        meta: video.meta,
+        videoUrl: null,
+        thumbnailUrl: video.image,
+        displayOrder: index,
+        active: true,
+        featured: index === 0,
+      },
+      create: {
+        id: `seed-homepage-video-${index + 1}`,
+        title: video.title,
+        meta: video.meta,
+        videoUrl: null,
+        thumbnailUrl: video.image,
+        displayOrder: index,
+        active: true,
+        featured: index === 0,
       },
     });
   }

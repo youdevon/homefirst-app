@@ -1,5 +1,6 @@
 import { unlink } from "node:fs/promises";
 import { prisma } from "@/lib/prisma";
+import type { MediaCategory } from "@/lib/media-upload";
 import { resolveSafeUploadFilePath } from "@/lib/media-upload";
 
 export type EditableMediaFile = {
@@ -115,4 +116,64 @@ export function formatMediaDate(date: Date): string {
     day: "numeric",
     year: "numeric",
   });
+}
+
+export type MediaSelectorOption = {
+  fileUrl: string;
+  label: string;
+};
+
+export type AdminMediaSelectorAssets = {
+  imageFiles: MediaSelectorOption[];
+  videoFiles: MediaSelectorOption[];
+  documentFiles: MediaSelectorOption[];
+};
+
+export function toMediaSelectorOption(file: EditableMediaFile): MediaSelectorOption {
+  return {
+    fileUrl: file.fileUrl,
+    label: file.originalName.trim() || file.fileName,
+  };
+}
+
+export function getMediaFileCategory(file: EditableMediaFile): MediaCategory | null {
+  if (file.fileType.startsWith("video/") || file.fileUrl.includes("/uploads/videos/")) {
+    return "videos";
+  }
+
+  if (
+    file.fileType.startsWith("application/") ||
+    file.fileUrl.includes("/uploads/docs/")
+  ) {
+    return "docs";
+  }
+
+  if (isImageMediaFile(file.fileType) || file.fileUrl.includes("/uploads/images/")) {
+    return "images";
+  }
+
+  return null;
+}
+
+export async function getAdminMediaSelectorAssets(): Promise<AdminMediaSelectorAssets> {
+  const files = await getAllMediaFilesForAdmin();
+
+  const imageFiles: MediaSelectorOption[] = [];
+  const videoFiles: MediaSelectorOption[] = [];
+  const documentFiles: MediaSelectorOption[] = [];
+
+  for (const file of files) {
+    const category = getMediaFileCategory(file);
+    const option = toMediaSelectorOption(file);
+
+    if (category === "images") {
+      imageFiles.push(option);
+    } else if (category === "videos") {
+      videoFiles.push(option);
+    } else if (category === "docs") {
+      documentFiles.push(option);
+    }
+  }
+
+  return { imageFiles, videoFiles, documentFiles };
 }

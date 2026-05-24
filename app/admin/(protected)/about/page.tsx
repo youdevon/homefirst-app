@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AboutContentForm from "@/components/admin/AboutContentForm";
 import { getEditableAboutContent } from "@/lib/about-content-data";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,10 @@ export default async function AdminAboutPage({
   searchParams,
 }: AdminAboutPageProps) {
   const params = searchParams ? await searchParams : {};
-  const content = await getEditableAboutContent();
+  const [content, mediaAssets] = await Promise.all([
+    getEditableAboutContent(),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   const showSuccess = params.saved === "1";
   const showSessionError = params.error === "session";
@@ -53,7 +57,7 @@ export default async function AdminAboutPage({
       ) : null}
 
       <div className="admin-panel">
-        <AboutContentForm content={content} />
+        <AboutContentForm content={content} imageFiles={mediaAssets.imageFiles} />
       </div>
     </div>
   );

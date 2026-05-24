@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ContactContentForm from "@/components/admin/ContactContentForm";
 import { getEditableContactContent } from "@/lib/contact-content-data";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,10 @@ export default async function AdminContactPage({
   searchParams,
 }: AdminContactPageProps) {
   const params = searchParams ? await searchParams : {};
-  const content = await getEditableContactContent();
+  const [content, mediaAssets] = await Promise.all([
+    getEditableContactContent(),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   const showSuccess = params.saved === "1";
   const showSessionError = params.error === "session";
@@ -53,7 +57,10 @@ export default async function AdminContactPage({
       ) : null}
 
       <div className="admin-panel">
-        <ContactContentForm content={content} />
+        <ContactContentForm
+          content={content}
+          imageFiles={mediaAssets.imageFiles}
+        />
       </div>
     </div>
   );

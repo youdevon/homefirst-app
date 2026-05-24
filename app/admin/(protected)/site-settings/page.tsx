@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SiteSettingsForm from "@/components/admin/SiteSettingsForm";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 import { getEditableSiteSettings } from "@/lib/site-settings-data";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,10 @@ export default async function AdminSiteSettingsPage({
   searchParams,
 }: AdminSiteSettingsPageProps) {
   const params = searchParams ? await searchParams : {};
-  const settings = await getEditableSiteSettings();
+  const [settings, mediaAssets] = await Promise.all([
+    getEditableSiteSettings(),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   const showSuccess = params.saved === "1";
   const showSessionError = params.error === "session";
@@ -57,7 +61,7 @@ export default async function AdminSiteSettingsPage({
       ) : null}
 
       <div className="admin-panel">
-        <SiteSettingsForm settings={settings} />
+        <SiteSettingsForm settings={settings} imageFiles={mediaAssets.imageFiles} />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import LeaderForm from "@/components/admin/LeaderForm";
 import { getLeaderById } from "@/lib/leaders-data";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,10 @@ export default async function AdminEditLeaderPage({
 }: AdminEditLeaderPageProps) {
   const { id } = await params;
   const query = searchParams ? await searchParams : {};
-  const leader = await getLeaderById(id);
+  const [leader, mediaAssets] = await Promise.all([
+    getLeaderById(id),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   if (!leader) {
     notFound();
@@ -48,6 +52,7 @@ export default async function AdminEditLeaderPage({
           leader={leader}
           action={`/api/admin/leaders/${leader.id}`}
           submitLabel="Save Leader"
+          imageFiles={mediaAssets.imageFiles}
         />
       </div>
     </div>

@@ -1,13 +1,21 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableNewsItem } from "@/lib/news-data";
 import { NEWS_CATEGORIES, toDatetimeLocalValue } from "@/lib/news-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type NewsFormProps = {
   item?: EditableNewsItem;
   action: string;
   submitLabel: string;
+  imageFiles: MediaSelectorOption[];
 };
 
-export default function NewsForm({ item, action, submitLabel }: NewsFormProps) {
+export default function NewsForm({
+  item,
+  action,
+  submitLabel,
+  imageFiles,
+}: NewsFormProps) {
   return (
     <form method="post" action={action} className="admin-settings-form">
       <div className="admin-form-grid">
@@ -59,12 +67,12 @@ export default function NewsForm({ item, action, submitLabel }: NewsFormProps) {
 
         <label className="admin-field admin-field-full">
           <span>Image URL</span>
-          <input
-            type="text"
+          <AdminMediaUrlField
             name="imageUrl"
             defaultValue={item?.imageUrl ?? ""}
+            options={imageFiles}
             required
-            placeholder="/images/news/item.jpg"
+            placeholder="/uploads/images/news-item.jpg"
           />
         </label>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import NewsForm from "@/components/admin/NewsForm";
 import { getNewsItemById } from "@/lib/news-data";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,10 @@ export default async function AdminEditNewsPage({
 }: AdminEditNewsPageProps) {
   const { id } = await params;
   const query = searchParams ? await searchParams : {};
-  const item = await getNewsItemById(id);
+  const [item, mediaAssets] = await Promise.all([
+    getNewsItemById(id),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   if (!item) {
     notFound();
@@ -48,6 +52,7 @@ export default async function AdminEditNewsPage({
           item={item}
           action={`/api/admin/news/${item.id}`}
           submitLabel="Save News Item"
+          imageFiles={mediaAssets.imageFiles}
         />
       </div>
     </div>

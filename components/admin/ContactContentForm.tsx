@@ -1,11 +1,17 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableContactContent } from "@/lib/contact-content-data";
 import { getContactCardSlots } from "@/lib/contact-content-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type ContactContentFormProps = {
   content: EditableContactContent;
+  imageFiles: MediaSelectorOption[];
 };
 
-export default function ContactContentForm({ content }: ContactContentFormProps) {
+export default function ContactContentForm({
+  content,
+  imageFiles,
+}: ContactContentFormProps) {
   const cardSlots = getContactCardSlots(content.cards);
 
   return (
@@ -27,12 +33,12 @@ export default function ContactContentForm({ content }: ContactContentFormProps)
             />
           </label>
 
-          <label className="admin-field">
+          <label className="admin-field admin-field-full">
             <span>Background image URL</span>
-            <input
-              type="text"
+            <AdminMediaUrlField
               name="hero_backgroundImageUrl"
               defaultValue={content.hero.backgroundImageUrl}
+              options={imageFiles}
               required
               placeholder="/uploads/images/contact.jpg"
             />

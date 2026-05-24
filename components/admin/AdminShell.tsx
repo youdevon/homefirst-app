@@ -1,21 +1,32 @@
 import Link from "next/link";
+import AdminBrandMark from "@/components/admin/AdminBrandMark";
+import { getAdminSubtitle, type AdminBranding } from "@/lib/admin-branding";
 import type { AdminSession } from "@/lib/auth/session";
 
 type AdminShellProps = {
   session: AdminSession;
+  branding: AdminBranding;
   children: React.ReactNode;
 };
 
-export default function AdminShell({ session, children }: AdminShellProps) {
+export default function AdminShell({
+  session,
+  branding,
+  children,
+}: AdminShellProps) {
   return (
     <div className="admin-shell">
       <header className="admin-header">
         <div className="admin-header-inner">
           <Link href="/admin/dashboard" className="admin-brand">
-            <span className="admin-brand-mark">⌂</span>
+            <AdminBrandMark
+              logoUrl={branding.logoUrl}
+              crest={branding.crest}
+              variant="header"
+            />
             <span>
-              <strong>HomeFirst Admin</strong>
-              <small>Content Management</small>
+              <strong>{branding.adminTitle}</strong>
+              <small>{getAdminSubtitle(branding.tagline)}</small>
             </span>
           </Link>
 
@@ -27,11 +38,11 @@ export default function AdminShell({ session, children }: AdminShellProps) {
             <Link href="/" className="admin-btn admin-btn-ghost">
               View Site
             </Link>
-            <form method="post" action="/admin/logout">
-  <button type="submit" className="admin-btn admin-btn-secondary">
-    Log Out
-  </button>
-</form>
+            <form method="post" action="/admin/logout" className="admin-logout-form">
+              <button type="submit" className="admin-btn admin-btn-secondary">
+                Log Out
+              </button>
+            </form>
           </div>
         </div>
       </header>

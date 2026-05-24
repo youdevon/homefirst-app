@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { getAdminBranding } from "@/lib/admin-branding";
 import "./admin.css";
 
-export const metadata: Metadata = {
-  title: "Admin | HomeFirst Division",
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getAdminBranding();
+
+  return {
+    title: branding.adminTitle,
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 export default function AdminRootLayout({
   children,

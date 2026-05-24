@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getAdminBranding } from "@/lib/admin-branding";
+import { getSession } from "@/lib/auth/session";
 
 const dashboardCards = [
   {
@@ -57,16 +59,32 @@ const dashboardCards = [
   },
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const [session, branding] = await Promise.all([
+    getSession(),
+    getAdminBranding(),
+  ]);
+  const firstName = session?.name.split(" ")[0] ?? "Admin";
+
   return (
     <div className="admin-page">
+      <div className="admin-dashboard-welcome">
+        <p className="admin-eyebrow">Welcome back</p>
+        <h2 className="admin-dashboard-welcome-title">
+          Hello, {firstName}
+        </h2>
+        <p className="admin-dashboard-welcome-text">
+          Choose a section below to update public website content.
+        </p>
+      </div>
+
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Admin Dashboard</p>
           <h1>Content Management</h1>
           <p className="admin-lead">
-            Choose a section below to manage website content. Full editing
-            screens will be added in the next phase.
+            Manage {branding.name} pages, media, schemes, news, and global site
+            settings from one place.
           </p>
         </div>
       </div>
@@ -74,7 +92,9 @@ export default function AdminDashboardPage() {
       <div className="admin-card-grid">
         {dashboardCards.map((card) => (
           <Link href={card.href} className="admin-card" key={card.href}>
-            <div className="admin-card-icon">{card.icon}</div>
+            <div className="admin-card-icon-wrap">
+              <span className="admin-card-icon">{card.icon}</span>
+            </div>
             <div>
               <h2>{card.title}</h2>
               <p>{card.description}</p>

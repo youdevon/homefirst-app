@@ -23,7 +23,7 @@ export default function LoginForm() {
         />
       </label>
 
-      <button type="submit" className="admin-btn admin-btn-primary">
+      <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark admin-login-submit">
         Sign In
       </button>
     </form>

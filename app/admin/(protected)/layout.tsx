@@ -1,4 +1,5 @@
 import AdminShell from "@/components/admin/AdminShell";
+import { getAdminBranding } from "@/lib/admin-branding";
 import { requireAdminSession } from "@/lib/auth/require-admin-session";
 
 export default async function ProtectedAdminLayout({
@@ -6,7 +7,14 @@ export default async function ProtectedAdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await requireAdminSession();
+  const [session, branding] = await Promise.all([
+    requireAdminSession(),
+    getAdminBranding(),
+  ]);
 
-  return <AdminShell session={session}>{children}</AdminShell>;
+  return (
+    <AdminShell session={session} branding={branding}>
+      {children}
+    </AdminShell>
+  );
 }

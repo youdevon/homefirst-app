@@ -1,15 +1,19 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableScheme } from "@/lib/schemes-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type SchemeFormProps = {
   scheme?: EditableScheme;
   action: string;
   submitLabel: string;
+  imageFiles: MediaSelectorOption[];
 };
 
 export default function SchemeForm({
   scheme,
   action,
   submitLabel,
+  imageFiles,
 }: SchemeFormProps) {
   return (
     <form method="post" action={action} className="admin-settings-form">
@@ -71,12 +75,12 @@ export default function SchemeForm({
 
         <label className="admin-field admin-field-full">
           <span>Image URL</span>
-          <input
-            type="text"
+          <AdminMediaUrlField
             name="imageUrl"
             defaultValue={scheme?.imageUrl ?? ""}
+            options={imageFiles}
             required
-            placeholder="/images/schemes/family.jpg"
+            placeholder="/uploads/images/scheme.jpg"
           />
         </label>
 

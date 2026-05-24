@@ -1,10 +1,16 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableSiteSettings } from "@/lib/site-settings-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type SiteSettingsFormProps = {
   settings: EditableSiteSettings;
+  imageFiles: MediaSelectorOption[];
 };
 
-export default function SiteSettingsForm({ settings }: SiteSettingsFormProps) {
+export default function SiteSettingsForm({
+  settings,
+  imageFiles,
+}: SiteSettingsFormProps) {
   return (
     <form
       method="post"
@@ -69,16 +75,12 @@ export default function SiteSettingsForm({ settings }: SiteSettingsFormProps) {
 
         <label className="admin-field admin-field-full">
           <span>Logo URL</span>
-          <input
-            type="text"
+          <AdminMediaUrlField
             name="logoUrl"
             defaultValue={settings.logoUrl}
+            options={imageFiles}
             placeholder="/uploads/images/logo.png"
           />
-          <span className="admin-form-help">
-            Upload a logo in Media Library, then paste its URL here. Example:
-            /uploads/images/logo.png
-          </span>
         </label>
 
         <label className="admin-field admin-field-full">

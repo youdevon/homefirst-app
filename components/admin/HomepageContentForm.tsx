@@ -1,10 +1,16 @@
+import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableHomepageContent } from "@/lib/homepage-content-data";
+import type { MediaSelectorOption } from "@/lib/media-data";
 
 type HomepageContentFormProps = {
   content: EditableHomepageContent;
+  imageFiles: MediaSelectorOption[];
 };
 
-export default function HomepageContentForm({ content }: HomepageContentFormProps) {
+export default function HomepageContentForm({
+  content,
+  imageFiles,
+}: HomepageContentFormProps) {
   return (
     <form
       method="post"
@@ -95,11 +101,12 @@ export default function HomepageContentForm({ content }: HomepageContentFormProp
 
           <label className="admin-field admin-field-full">
             <span>Background image URL</span>
-            <input
-              type="url"
+            <AdminMediaUrlField
               name="hero_backgroundImageUrl"
               defaultValue={content.hero.backgroundImageUrl}
+              options={imageFiles}
               required
+              placeholder="/uploads/images/hero-background.jpg"
             />
           </label>
         </div>

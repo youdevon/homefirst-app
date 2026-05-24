@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SchemeForm from "@/components/admin/SchemeForm";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function AdminNewSchemePage({
   searchParams,
 }: AdminNewSchemePageProps) {
   const params = searchParams ? await searchParams : {};
+  const mediaAssets = await getAdminMediaSelectorAssets();
   const showValidationError = params.error === "validation";
 
   return (
@@ -38,6 +40,7 @@ export default async function AdminNewSchemePage({
         <SchemeForm
           action="/api/admin/schemes"
           submitLabel="Create Scheme"
+          imageFiles={mediaAssets.imageFiles}
         />
       </div>
     </div>

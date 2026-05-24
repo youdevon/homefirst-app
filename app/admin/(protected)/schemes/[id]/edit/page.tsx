@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SchemeForm from "@/components/admin/SchemeForm";
 import { getSchemeById } from "@/lib/schemes-data";
+import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,10 @@ export default async function AdminEditSchemePage({
 }: AdminEditSchemePageProps) {
   const { id } = await params;
   const query = searchParams ? await searchParams : {};
-  const scheme = await getSchemeById(id);
+  const [scheme, mediaAssets] = await Promise.all([
+    getSchemeById(id),
+    getAdminMediaSelectorAssets(),
+  ]);
 
   if (!scheme) {
     notFound();
@@ -48,6 +52,7 @@ export default async function AdminEditSchemePage({
           scheme={scheme}
           action={`/api/admin/schemes/${scheme.id}`}
           submitLabel="Save Scheme"
+          imageFiles={mediaAssets.imageFiles}
         />
       </div>
     </div>
