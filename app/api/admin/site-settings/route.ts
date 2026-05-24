@@ -37,7 +37,20 @@ function parseSettings(formData: FormData): EditableSiteSettings {
     email: readFormField(formData, "email"),
     officeHours: readFormField(formData, "officeHours"),
     copyright: readFormField(formData, "copyright"),
+    logoUrl: readFormField(formData, "logoUrl"),
   };
+}
+
+function isValidLogoUrl(logoUrl: string): boolean {
+  if (!logoUrl) {
+    return true;
+  }
+
+  return (
+    logoUrl.startsWith("/") ||
+    logoUrl.startsWith("http://") ||
+    logoUrl.startsWith("https://")
+  );
 }
 
 function isValidSettings(settings: EditableSiteSettings): boolean {
@@ -48,7 +61,8 @@ function isValidSettings(settings: EditableSiteSettings): boolean {
     Boolean(settings.email) &&
     Boolean(settings.officeHours) &&
     Boolean(settings.copyright) &&
-    settings.email.includes("@")
+    settings.email.includes("@") &&
+    isValidLogoUrl(settings.logoUrl)
   );
 }
 

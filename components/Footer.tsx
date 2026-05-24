@@ -1,22 +1,33 @@
-import {
-  footerQuickLinks,
-  footerServiceLinks,
-  site,
-} from "@/content/site";
+import { footerQuickLinks, footerServiceLinks } from "@/content/site";
+import type { PublicSiteSettings } from "@/lib/site-settings-data";
 
-export default function Footer() {
+type FooterProps = {
+  settings: PublicSiteSettings;
+};
+
+export default function Footer({ settings }: FooterProps) {
   return (
     <footer className="footer">
       <div className="ft-grid">
         <div>
           <div className="ft-logo-row">
-            <div className="ft-crest">{site.crest}</div>
+            <div className={settings.logoUrl ? "ft-crest has-logo" : "ft-crest"}>
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt=""
+                  className="footer-logo-img"
+                />
+              ) : (
+                settings.crest
+              )}
+            </div>
             <div>
-              <div className="ft-name">{site.name}</div>
-              <div className="ft-min">{site.tagline}</div>
+              <div className="ft-name">{settings.name}</div>
+              <div className="ft-min">{settings.tagline}</div>
             </div>
           </div>
-          <p className="ft-desc">{site.footerDescription}</p>
+          <p className="ft-desc">{settings.footerDescription}</p>
         </div>
 
         <div className="ft-col">
@@ -45,17 +56,17 @@ export default function Footer() {
           <h6>Contact</h6>
           <ul>
             <li>
-              <a href={site.phone.href}>{site.phone.display}</a>
+              <a href={settings.phone.href}>{settings.phone.display}</a>
             </li>
             <li>
-              <a href={site.email.href}>{site.email.display}</a>
+              <a href={settings.email.href}>{settings.email.display}</a>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="ft-btm">
-        <p>{site.copyright}</p>
+        <p>{settings.copyright}</p>
       </div>
     </footer>
   );

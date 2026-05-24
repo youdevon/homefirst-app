@@ -8,14 +8,23 @@ import Testimonials from "@/components/Testimonials";
 import NewsPreview from "@/components/NewsPreview";
 import CtaBanner from "@/components/CtaBanner";
 import ContactStrip from "@/components/ContactStrip";
-import { hero } from "@/content/home";
+import { getPublicHomepageContent } from "@/lib/homepage-content-data";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const { hero, ctaBanner } = await getPublicHomepageContent();
+
   return (
     <main>
       <section className="hero">
         <div className="hero-stripe"></div>
-        <div className="hero-bg"></div>
+        <div
+          className="hero-bg"
+          style={{
+            background: `url("${hero.backgroundImageUrl}") center/cover no-repeat`,
+          }}
+        ></div>
         <div className="hero-ov"></div>
 
         <div className="hero-wrap">
@@ -27,17 +36,17 @@ export default function HomePage() {
 
             <h1>
               {hero.title}
-              <em>{hero.titleEmphasis}</em>
+              <em>{hero.highlightedTitle}</em>
             </h1>
 
-            <p className="hero-sub">{hero.subtitle}</p>
+            <p className="hero-sub">{hero.description}</p>
 
             <div className="hero-btns">
-              <a href={hero.primaryCta.href} className="btn-pri">
-                {hero.primaryCta.label}
+              <a href={hero.primaryCtaHref} className="btn-pri">
+                {hero.primaryCtaLabel}
               </a>
-              <a href={hero.secondaryCta.href} className="btn-ghost">
-                {hero.secondaryCta.label}
+              <a href={hero.secondaryCtaHref} className="btn-ghost">
+                {hero.secondaryCtaLabel}
               </a>
             </div>
           </div>
@@ -52,7 +61,7 @@ export default function HomePage() {
       <VideoSection />
       <Testimonials />
       <NewsPreview />
-      <CtaBanner />
+      <CtaBanner ctaBanner={ctaBanner} />
       <ContactStrip />
     </main>
   );

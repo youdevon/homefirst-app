@@ -68,6 +68,20 @@ export default function SiteSettingsForm({ settings }: SiteSettingsFormProps) {
         </label>
 
         <label className="admin-field admin-field-full">
+          <span>Logo URL</span>
+          <input
+            type="text"
+            name="logoUrl"
+            defaultValue={settings.logoUrl}
+            placeholder="/uploads/images/logo.png"
+          />
+          <span className="admin-form-help">
+            Upload a logo in Media Library, then paste its URL here. Example:
+            /uploads/images/logo.png
+          </span>
+        </label>
+
+        <label className="admin-field admin-field-full">
           <span>Footer copyright text</span>
           <input
             type="text"

@@ -288,6 +288,20 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.crest.has-logo {
+  background: transparent;
+}
+
+.brand-logo-img {
+  display: block;
+  max-width: 46px;
+  max-height: 46px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .logo-div {
@@ -368,6 +382,20 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.ft-crest.has-logo {
+  background: transparent;
+}
+
+.footer-logo-img {
+  display: block;
+  max-width: 38px;
+  max-height: 38px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .ft-name {

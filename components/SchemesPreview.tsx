@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { schemes, schemesSection } from "@/content/schemes";
+import { schemesSection } from "@/content/schemes";
+import { getPublicSchemes } from "@/lib/schemes-data";
 
-export default function SchemesPreview() {
+export default async function SchemesPreview() {
+  const schemes = await getPublicSchemes();
+
   return (
     <section className="sec sch-sec">
       <div className="wrap">
@@ -20,7 +23,7 @@ export default function SchemesPreview() {
 
         <div className="sch-grid">
           {schemes.map((scheme) => (
-            <article className="sch-card" key={scheme.title}>
+            <article className="sch-card" key={`${scheme.title}-${scheme.meta}`}>
               <div className="sch-img">
                 <img src={scheme.image} alt={scheme.title} />
                 <div className="sch-img-ov"></div>

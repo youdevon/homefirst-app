@@ -1,16 +1,21 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getPublicSiteSettings } from "@/lib/site-settings-data";
 
-export default function SiteLayout({
+export const dynamic = "force-dynamic";
+
+export default async function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getPublicSiteSettings();
+
   return (
     <>
-      <Navbar />
+      <Navbar settings={settings} />
       {children}
-      <Footer />
+      <Footer settings={settings} />
     </>
   );
 }

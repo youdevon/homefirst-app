@@ -7,9 +7,13 @@ import {
   aboutImages,
   leadershipSection,
 } from "@/content/about";
-import { leaders } from "@/content/leaders";
+import { getPublicLeaders } from "@/lib/leaders-data";
 
-export default function AboutPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AboutPage() {
+  const leaders = await getPublicLeaders();
+
   return (
     <main>
       <section className="page-hero about-page-hero">
@@ -90,7 +94,7 @@ export default function AboutPage() {
 
           <div className="leaders-grid">
             {leaders.map((leader) => (
-              <article className="leader-card" key={leader.name}>
+              <article className="leader-card" key={`${leader.name}-${leader.title}`}>
                 <div className="leader-img">
                   <img src={leader.image} alt={leader.alt} />
                 </div>

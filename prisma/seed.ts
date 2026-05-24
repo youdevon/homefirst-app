@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { site } from "../content/site";
-import { hero, videoSection } from "../content/home";
+import { hero, videoSection, ctaBanner } from "../content/home";
 import { aboutHero, aboutIntro, vision, mission } from "../content/about";
 import { leaders } from "../content/leaders";
 import { schemes } from "../content/schemes";
 import { newsItems } from "../content/news";
 import { DEFAULT_ADMIN } from "../lib/auth/constants";
+import { DEFAULT_HERO_BACKGROUND_URL } from "../lib/homepage-content-data";
 import { hashPassword } from "../lib/auth/password";
 
 const prisma = new PrismaClient();
@@ -27,11 +28,25 @@ const pageContentSections = [
     sectionKey: "home.hero",
     title: hero.title,
     subtitle: hero.subtitle,
+    imageUrl: DEFAULT_HERO_BACKGROUND_URL,
     metadata: {
       badge: hero.badge,
-      titleEmphasis: hero.titleEmphasis,
-      primaryCta: hero.primaryCta,
-      secondaryCta: hero.secondaryCta,
+      highlightedTitle: hero.titleEmphasis,
+      primaryCtaLabel: hero.primaryCta.label,
+      primaryCtaHref: hero.primaryCta.href,
+      secondaryCtaLabel: hero.secondaryCta.label,
+      secondaryCtaHref: hero.secondaryCta.href,
+    },
+  },
+  {
+    sectionKey: "home.cta",
+    title: ctaBanner.title,
+    subtitle: ctaBanner.lead,
+    metadata: {
+      eyebrow: ctaBanner.eyebrow,
+      highlightedTitle: ctaBanner.titleEmphasis,
+      formTitle: ctaBanner.formTitle,
+      submitLabel: ctaBanner.submitLabel,
     },
   },
   {

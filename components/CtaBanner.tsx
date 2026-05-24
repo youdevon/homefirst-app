@@ -1,16 +1,20 @@
 import Link from "next/link";
-import { ctaBanner } from "@/content/home";
+import type { PublicCtaBanner } from "@/lib/homepage-content-data";
 
-export default function CtaBanner() {
+type CtaBannerProps = {
+  ctaBanner: PublicCtaBanner;
+};
+
+export default function CtaBanner({ ctaBanner }: CtaBannerProps) {
   return (
     <section className="cta-sec">
       <div className="cta-layout">
         <div>
           <span className="eyebrow">{ctaBanner.eyebrow}</span>
           <h2 className="sec-title">
-            {ctaBanner.title} <em>{ctaBanner.titleEmphasis}</em>
+            {ctaBanner.title} <em>{ctaBanner.highlightedTitle}</em>
           </h2>
-          <p className="sec-lead">{ctaBanner.lead}</p>
+          <p className="sec-lead">{ctaBanner.description}</p>
         </div>
 
         <div className="cta-box">

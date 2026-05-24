@@ -2,8 +2,14 @@ import Link from "next/link";
 
 const dashboardCards = [
   {
+    title: "Homepage Content",
+    description: "Edit the homepage hero and CTA banner content.",
+    href: "/admin/homepage",
+    icon: "🏠",
+  },
+  {
     title: "Website Content",
-    description: "Manage homepage sections, about page copy, and page blocks.",
+    description: "Manage other homepage sections, about page copy, and page blocks.",
     href: "/admin/content",
     icon: "📄",
   },

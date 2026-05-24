@@ -8,6 +8,25 @@ export type EditableSiteSettings = {
   email: string;
   officeHours: string;
   copyright: string;
+  logoUrl: string;
+};
+
+export type PublicSiteSettings = {
+  name: string;
+  tagline: string;
+  crest: string;
+  logoUrl: string | null;
+  phone: {
+    display: string;
+    href: string;
+  };
+  email: {
+    display: string;
+    href: string;
+  };
+  officeHours: string;
+  copyright: string;
+  footerDescription: string;
 };
 
 export const SITE_SETTING_KEYS = {
@@ -17,6 +36,7 @@ export const SITE_SETTING_KEYS = {
   email: "site.email",
   officeHours: "site.officeHours",
   copyright: "site.copyright",
+  logoUrl: "site.logoUrl",
 } as const;
 
 const LEGACY_SETTING_KEYS = {
@@ -32,7 +52,48 @@ export function getDefaultSiteSettings(): EditableSiteSettings {
     email: site.email.display,
     officeHours: site.officeHours,
     copyright: site.copyright,
+    logoUrl: "",
   };
+}
+
+function toPhoneHref(phone: string): string {
+  const normalized = phone.replace(/[^\d+]/g, "");
+  return normalized ? `tel:${normalized}` : site.phone.href;
+}
+
+function toEmailHref(email: string): string {
+  return email ? `mailto:${email}` : site.email.href;
+}
+
+export function toPublicSiteSettings(
+  settings: EditableSiteSettings,
+): PublicSiteSettings {
+  return {
+    name: settings.name,
+    tagline: settings.tagline,
+    crest: site.crest,
+    logoUrl: settings.logoUrl.trim() || null,
+    phone: {
+      display: settings.phone,
+      href: toPhoneHref(settings.phone),
+    },
+    email: {
+      display: settings.email,
+      href: toEmailHref(settings.email),
+    },
+    officeHours: settings.officeHours,
+    copyright: settings.copyright,
+    footerDescription: site.footerDescription,
+  };
+}
+
+export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
+  try {
+    const settings = await getEditableSiteSettings();
+    return toPublicSiteSettings(settings);
+  } catch {
+    return toPublicSiteSettings(getDefaultSiteSettings());
+  }
 }
 
 const ALL_SETTING_KEYS = [
@@ -62,6 +123,7 @@ export async function getEditableSiteSettings(): Promise<EditableSiteSettings> {
     officeHours:
       values.get(SITE_SETTING_KEYS.officeHours) ?? defaults.officeHours,
     copyright: values.get(SITE_SETTING_KEYS.copyright) ?? defaults.copyright,
+    logoUrl: values.get(SITE_SETTING_KEYS.logoUrl) ?? defaults.logoUrl,
   };
 }
 
@@ -75,6 +137,7 @@ export async function saveEditableSiteSettings(
     { key: SITE_SETTING_KEYS.email, value: input.email.trim() },
     { key: SITE_SETTING_KEYS.officeHours, value: input.officeHours.trim() },
     { key: SITE_SETTING_KEYS.copyright, value: input.copyright.trim() },
+    { key: SITE_SETTING_KEYS.logoUrl, value: input.logoUrl.trim() },
   ];
 
   await prisma.$transaction(

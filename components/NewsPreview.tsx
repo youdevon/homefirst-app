@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { newsItems, newsSection } from "@/content/news";
+import { newsSection } from "@/content/news";
+import { getPublicNewsItems } from "@/lib/news-data";
 
-export default function NewsPreview() {
+export default async function NewsPreview() {
+  const newsItems = await getPublicNewsItems();
+
   return (
     <section className="sec news-sec">
       <div className="wrap">
@@ -22,7 +25,7 @@ export default function NewsPreview() {
           {newsItems.map((item) => (
             <article
               className={item.featured ? "nc feat" : "nc"}
-              key={item.title}
+              key={`${item.title}-${item.date}`}
             >
               <div className="ni">
                 <img src={item.image} alt={item.title} />
