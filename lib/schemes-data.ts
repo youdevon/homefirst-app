@@ -82,6 +82,10 @@ function getContentFallbackSchemes(): PublicScheme[] {
   }));
 }
 
+export function getSchemeCtaHref(scheme: PublicScheme): string {
+  return scheme.open ? "/application" : "/eligibility";
+}
+
 export async function getAllSchemesForAdmin(): Promise<EditableScheme[]> {
   const rows = await prisma.scheme.findMany({
     orderBy: [{ displayOrder: "asc" }, { name: "asc" }],

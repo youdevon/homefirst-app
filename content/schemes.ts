@@ -42,3 +42,55 @@ export const schemes = [
     open: true,
   },
 ];
+
+export const schemesPageHero = {
+  eyebrow: "Housing Schemes",
+  title: "Available Housing",
+  highlightedTitle: "Schemes",
+  description:
+    "Explore HomeFirst programmes designed for families, seniors, and young adults. Each scheme has its own eligibility criteria, unit types, and application windows.",
+  backgroundImageUrl:
+    "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=85",
+};
+
+export const schemesChooseSection = {
+  eyebrow: "Choosing a Scheme",
+  title: "Find the Programme",
+  titleEmphasis: "That Fits You",
+  lead:
+    "Review the schemes below and identify the option that best matches your household profile, location preference, and support needs.",
+  items: [
+    {
+      title: "Check eligibility first",
+      text: "Confirm age, household size, income, and residency requirements before you begin an application.",
+    },
+    {
+      title: "Compare unit types",
+      text: "Each scheme offers different bedroom counts, accessibility features, and community amenities.",
+    },
+    {
+      title: "Note application status",
+      text: "Status labels show whether a scheme is open, registering interest, or accepting applications now.",
+    },
+    {
+      title: "Prepare your documents",
+      text: "Gather identification, proof of income, and supporting references before you apply.",
+    },
+  ],
+};
+
+export const schemesPageCta = {
+  title: "Ready to Take the",
+  highlightedTitle: "Next Step?",
+  description:
+    "Check whether you qualify for a HomeFirst programme, then start your housing application when you are ready.",
+  primaryLabel: "Start Application",
+  primaryHref: "/application",
+  secondaryLabel: "Check Eligibility",
+  secondaryHref: "/eligibility",
+};
+
+export const schemeCardCtaLabels = {
+  apply: "Start Application →",
+  eligibility: "Check Eligibility →",
+};

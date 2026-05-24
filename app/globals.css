@@ -2081,3 +2081,135 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Schemes Page */
+.schemes-page-hero {
+  background: var(--gov-deep);
+}
+
+.schemes-page-lead {
+  margin-top: 0.75rem;
+}
+
+.schemes-page-list .sch-head {
+  align-items: flex-start;
+}
+
+.schemes-choose-section {
+  background: var(--bg-surface);
+}
+
+.schemes-choose-lead {
+  margin: 0.75rem auto 0;
+}
+
+.schemes-choose-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+
+.schemes-choose-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem;
+  box-shadow: var(--sh-sm);
+}
+
+.schemes-choose-num {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 0.85rem;
+}
+
+.schemes-choose-card h3 {
+  font-size: 1rem;
+  color: var(--text-head);
+  margin-bottom: 0.55rem;
+}
+
+.schemes-choose-card p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.schemes-page-cta {
+  background: var(--gov-deep);
+}
+
+.schemes-page-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.schemes-page-cta-eyebrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.schemes-page-cta-title {
+  color: #fff;
+  margin-top: 0.35rem;
+}
+
+.schemes-page-cta-title em {
+  color: var(--amber);
+}
+
+.schemes-page-cta-text {
+  max-width: 560px;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.8;
+  margin-top: 0.75rem;
+}
+
+.schemes-page-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.schemes-page-cta-secondary {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.schemes-page-cta-secondary:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  .schemes-choose-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .schemes-choose-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schemes-page-cta-inner {
+    align-items: flex-start;
+  }
+
+  .schemes-page-cta-actions {
+    width: 100%;
+  }
+
+  .schemes-page-cta-actions .btn-pri,
+  .schemes-page-cta-actions .btn-ghost {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
