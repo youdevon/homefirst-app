@@ -894,3 +894,112 @@
     padding: 1.65rem;
   }
 }
+
+.admin-form-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-audit-filters {
+  margin-bottom: 0;
+}
+
+.admin-audit-table td:nth-child(6) {
+  min-width: 16rem;
+}
+
+.admin-audit-row-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-audit-row-link:hover {
+  color: var(--admin-gov-teal);
+  text-decoration: underline;
+}
+
+.admin-detail-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-detail-list div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.admin-detail-list dt {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5f726f;
+}
+
+.admin-detail-list dd {
+  margin: 0;
+  color: #1a3a38;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.admin-detail-metadata {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8e6;
+}
+
+.admin-print-page {
+  padding: 2rem;
+  background: #fff;
+  color: #111;
+}
+
+.admin-print-toolbar {
+  margin-bottom: 1.5rem;
+}
+
+.admin-print-header {
+  margin-bottom: 1.5rem;
+}
+
+.admin-print-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.6rem;
+}
+
+.admin-print-header p {
+  margin: 0.2rem 0;
+  color: #444;
+}
+
+.admin-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.admin-print-table th,
+.admin-print-table td {
+  border: 1px solid #ccc;
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-print-table th {
+  background: #f3f6f5;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .admin-print-page {
+    padding: 0;
+  }
+}

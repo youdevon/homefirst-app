@@ -1,29 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
-import { verifySessionToken } from "@/lib/auth/session";
+import {
+  getAdminSessionFromRequest,
+  redirectTo,
+} from "@/lib/admin-api";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
 import {
   saveEditableSiteSettings,
   type EditableSiteSettings,
 } from "@/lib/site-settings-data";
 
 export const dynamic = "force-dynamic";
-
-function getBaseUrl(request: NextRequest) {
-  const configuredUrl = process.env.APP_URL?.trim();
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
-  }
-
-  const host = request.headers.get("host") ?? "10.1.1.15:3002";
-  const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-
-  return `${protocol}://${host}`;
-}
-
-function redirectTo(request: NextRequest, path: string, status = 303) {
-  return NextResponse.redirect(`${getBaseUrl(request)}${path}`, status);
-}
 
 function readFormField(formData: FormData, name: keyof EditableSiteSettings): string {
   return String(formData.get(name) ?? "").trim();
@@ -67,19 +57,17 @@ function isValidSettings(settings: EditableSiteSettings): boolean {
 }
 
 export async function GET(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifySessionToken(token) : null;
+  const session = await getAdminSessionFromRequest(request);
 
   return NextResponse.json({
-    cookiePresent: Boolean(token),
+    cookiePresent: Boolean(request.cookies.get("admin_session")?.value),
     sessionValid: Boolean(session),
     savedBy: session?.email ?? null,
   });
 }
 
 export async function POST(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifySessionToken(token) : null;
+  const session = await getAdminSessionFromRequest(request);
 
   if (!session) {
     return redirectTo(request, "/admin/site-settings?error=session");
@@ -94,6 +82,20 @@ export async function POST(request: NextRequest) {
 
   try {
     await saveEditableSiteSettings(settings);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.SITE_SETTINGS_SAVED,
+      entityType: AUDIT_ENTITY_TYPES.SITE_SETTINGS,
+      entityName: settings.name,
+      description: `${session.name} updated Site Settings.`,
+      metadata: {
+        siteName: settings.name,
+        tagline: settings.tagline,
+      },
+    });
+
     return redirectTo(request, "/admin/site-settings?saved=1");
   } catch {
     return redirectTo(request, "/admin/site-settings?error=validation");

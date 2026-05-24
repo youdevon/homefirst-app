@@ -1,26 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSessionToken } from "@/lib/auth/session";
 import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth/constants";
+import { getBaseUrl } from "@/lib/admin-api";
 
 export const dynamic = "force-dynamic";
-
-function getBaseUrl(request: NextRequest) {
-  const configuredUrl = process.env.APP_URL?.trim();
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
-  }
-
-  const host = request.headers.get("host") ?? "10.1.1.15:3002";
-  const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-
-  return `${protocol}://${host}`;
-}
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -42,12 +35,30 @@ export async function POST(request: NextRequest) {
   });
 
   if (!user || !user.active) {
+    await logAuditEvent({
+      actor: { name: "Unknown", email, role: "Unknown" },
+      request,
+      action: AUDIT_ACTIONS.LOGIN_FAILED,
+      entityType: AUDIT_ENTITY_TYPES.SESSION,
+      entityName: email,
+      description: `Failed login attempt for ${email}.`,
+    });
+
     return NextResponse.redirect(`${baseUrl}/admin/login?error=invalid`, 303);
   }
 
   const passwordValid = await verifyPassword(password, user.passwordHash);
 
   if (!passwordValid) {
+    await logAuditEvent({
+      actor: { name: "Unknown", email, role: "Unknown" },
+      request,
+      action: AUDIT_ACTIONS.LOGIN_FAILED,
+      entityType: AUDIT_ENTITY_TYPES.SESSION,
+      entityName: email,
+      description: `Failed login attempt for ${email}.`,
+    });
+
     return NextResponse.redirect(`${baseUrl}/admin/login?error=invalid`, 303);
   }
 
@@ -56,6 +67,19 @@ export async function POST(request: NextRequest) {
     email: user.email,
     name: user.name,
     role: user.role,
+  });
+
+  await logAuditEvent({
+    actor: {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    request,
+    action: AUDIT_ACTIONS.LOGIN_SUCCESS,
+    entityType: AUDIT_ENTITY_TYPES.SESSION,
+    entityName: user.name,
+    description: `${user.name} logged in successfully.`,
   });
 
   const response = NextResponse.redirect(`${baseUrl}/admin/dashboard`, 303);

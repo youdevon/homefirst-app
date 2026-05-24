@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
-import { verifySessionToken } from "@/lib/auth/session";
+import { verifySessionToken, type AdminSession } from "@/lib/auth/session";
+import { isAdminRole } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,27 @@ export function redirectTo(request: NextRequest, path: string, status = 303) {
   return NextResponse.redirect(`${getBaseUrl(request)}${path}`, status);
 }
 
+export async function getAdminSessionFromRequest(
+  request: NextRequest,
+): Promise<AdminSession | null> {
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  return token ? verifySessionToken(token) : null;
+}
+
 export async function requireAdminSessionFromRequest(
   request: NextRequest,
-): Promise<boolean> {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifySessionToken(token) : null;
-  return Boolean(session);
+): Promise<AdminSession | null> {
+  return getAdminSessionFromRequest(request);
+}
+
+export async function requireAdminRoleFromRequest(
+  request: NextRequest,
+): Promise<AdminSession | null> {
+  const session = await getAdminSessionFromRequest(request);
+
+  if (!session || !isAdminRole(session.role)) {
+    return null;
+  }
+
+  return session;
 }

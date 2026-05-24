@@ -4,6 +4,11 @@ import {
   requireAdminSessionFromRequest,
 } from "@/lib/admin-api";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
+import {
   createNewsItem,
   isValidNewsInput,
   parseNewsFormData,
@@ -12,7 +17,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  if (!(await requireAdminSessionFromRequest(request))) {
+  const session = await requireAdminSessionFromRequest(request);
+
+  if (!session) {
     return redirectTo(request, "/admin/news?error=session");
   }
 
@@ -25,6 +32,16 @@ export async function POST(request: NextRequest) {
 
   try {
     await createNewsItem(input);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.NEWS_CREATED,
+      entityType: AUDIT_ENTITY_TYPES.NEWS,
+      entityName: input.title,
+      description: `${session.name} created news item: ${input.title}.`,
+    });
+
     return redirectTo(request, "/admin/news?saved=1");
   } catch {
     return redirectTo(request, "/admin/news/new?error=validation");

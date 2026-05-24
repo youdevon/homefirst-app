@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AdminBrandMark from "@/components/admin/AdminBrandMark";
 import { getAdminSubtitle, type AdminBranding } from "@/lib/admin-branding";
+import { formatAdminRole } from "@/lib/auth/roles";
 import type { AdminSession } from "@/lib/auth/session";
 
 type AdminShellProps = {
@@ -33,7 +34,7 @@ export default function AdminShell({
           <div className="admin-header-actions">
             <div className="admin-user-chip">
               <span>{session.name}</span>
-              <small>{session.role}</small>
+              <small>{formatAdminRole(session.role)}</small>
             </div>
             <Link href="/" className="admin-btn admin-btn-ghost">
               View Site

@@ -4,6 +4,12 @@ import {
   requireAdminSessionFromRequest,
 } from "@/lib/admin-api";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
+import {
+  getLeaderById,
   isValidLeaderInput,
   parseLeaderFormData,
   updateLeader,
@@ -17,8 +23,9 @@ type RouteContext = {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
+  const session = await requireAdminSessionFromRequest(request);
 
-  if (!(await requireAdminSessionFromRequest(request))) {
+  if (!session) {
     return redirectTo(request, "/admin/leaders?error=session");
   }
 
@@ -31,6 +38,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   try {
     await updateLeader(id, input);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.LEADER_UPDATED,
+      entityType: AUDIT_ENTITY_TYPES.LEADER,
+      entityName: input.name,
+      description: `${session.name} updated leader profile: ${input.name}.`,
+    });
+
     return redirectTo(request, "/admin/leaders?saved=1");
   } catch {
     return redirectTo(request, `/admin/leaders/${id}/edit?error=validation`);

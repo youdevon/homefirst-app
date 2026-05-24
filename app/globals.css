@@ -1870,7 +1870,7 @@ a {
 }
 
 .leader-img {
-  height: 260px;
+  height: 330px;
   overflow: hidden;
   position: relative;
 }
@@ -1879,6 +1879,8 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 18%;
+  display: block;
   transition: transform .4s, filter .4s;
   filter: grayscale(15%);
 }
@@ -1940,6 +1942,10 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .leader-img {
+    height: 280px;
+  }
+
   .vm-grid {
     grid-template-columns: 1fr;
   }
@@ -1952,6 +1958,10 @@ a {
 @media(max-width: 600px) {
   .page-hero {
     min-height: 260px;
+  }
+
+  .leader-img {
+    height: 260px;
   }
 
   .page-hero-content {

@@ -4,6 +4,11 @@ import {
   requireAdminSessionFromRequest,
 } from "@/lib/admin-api";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
+import {
   isValidSchemeInput,
   parseSchemeFormData,
   updateScheme,
@@ -17,8 +22,9 @@ type RouteContext = {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
+  const session = await requireAdminSessionFromRequest(request);
 
-  if (!(await requireAdminSessionFromRequest(request))) {
+  if (!session) {
     return redirectTo(request, "/admin/schemes?error=session");
   }
 
@@ -31,6 +37,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   try {
     await updateScheme(id, input);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.SCHEME_UPDATED,
+      entityType: AUDIT_ENTITY_TYPES.SCHEME,
+      entityName: input.name,
+      description: `${session.name} updated housing scheme: ${input.name}.`,
+    });
+
     return redirectTo(request, "/admin/schemes?saved=1");
   } catch {
     return redirectTo(request, `/admin/schemes/${id}/edit?error=validation`);

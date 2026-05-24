@@ -4,6 +4,11 @@ import {
   requireAdminSessionFromRequest,
 } from "@/lib/admin-api";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
+import {
   isValidHomepageVideoInput,
   parseHomepageVideoFormData,
   updateHomepageVideo,
@@ -17,8 +22,9 @@ type RouteContext = {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
+  const session = await requireAdminSessionFromRequest(request);
 
-  if (!(await requireAdminSessionFromRequest(request))) {
+  if (!session) {
     return redirectTo(request, `/admin/homepage/videos/${id}/edit?error=session`);
   }
 
@@ -31,6 +37,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   try {
     await updateHomepageVideo(id, input);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.HOMEPAGE_VIDEO_UPDATED,
+      entityType: AUDIT_ENTITY_TYPES.HOMEPAGE_VIDEO,
+      entityName: input.title,
+      description: `${session.name} updated homepage video: ${input.title}.`,
+    });
+
     return redirectTo(request, "/admin/homepage?video_saved=1");
   } catch {
     return redirectTo(request, `/admin/homepage/videos/${id}/edit?error=validation`);

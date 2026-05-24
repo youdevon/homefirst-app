@@ -14,7 +14,9 @@ type RouteContext = {
 export async function POST(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
 
-  if (!(await requireAdminSessionFromRequest(request))) {
+  const session = await requireAdminSessionFromRequest(request);
+
+  if (!session) {
     return redirectTo(request, "/admin/media?error=session");
   }
 

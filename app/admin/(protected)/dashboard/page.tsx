@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getAdminBranding } from "@/lib/admin-branding";
+import { canManageUsers } from "@/lib/auth/roles";
 import { getSession } from "@/lib/auth/session";
 
-const dashboardCards = [
+const contentDashboardCards = [
   {
     title: "Homepage Content",
     description: "Edit the homepage hero and CTA banner content.",
@@ -59,12 +60,42 @@ const dashboardCards = [
   },
 ];
 
-export default async function AdminDashboardPage() {
+const adminOnlyDashboardCards = [
+  {
+    title: "User Management",
+    description: "Create and manage admin and contributor backend accounts.",
+    href: "/admin/users",
+    icon: "👤",
+    adminOnly: true,
+  },
+  {
+    title: "Audit Logs",
+    description: "Review who changed site content, media, and backend settings.",
+    href: "/admin/audit",
+    icon: "🧾",
+    adminOnly: true,
+  },
+];
+
+type AdminDashboardPageProps = {
+  searchParams?: Promise<{ error?: string }>;
+};
+
+export default async function AdminDashboardPage({
+  searchParams,
+}: AdminDashboardPageProps) {
+  const params = searchParams ? await searchParams : {};
   const [session, branding] = await Promise.all([
     getSession(),
     getAdminBranding(),
   ]);
   const firstName = session?.name.split(" ")[0] ?? "Admin";
+  const isAdmin = session ? canManageUsers(session) : false;
+
+  const dashboardCards = [
+    ...contentDashboardCards,
+    ...(isAdmin ? adminOnlyDashboardCards : []),
+  ];
 
   return (
     <div className="admin-page">
@@ -77,6 +108,12 @@ export default async function AdminDashboardPage() {
           Choose a section below to update public website content.
         </p>
       </div>
+
+      {params.error === "access" ? (
+        <div className="admin-alert admin-alert-error" role="alert">
+          You do not have permission to access that admin area.
+        </div>
+      ) : null}
 
       <div className="admin-page-header">
         <div>

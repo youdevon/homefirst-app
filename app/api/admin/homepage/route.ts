@@ -1,6 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
-import { verifySessionToken } from "@/lib/auth/session";
+import { NextRequest } from "next/server";
+import {
+  redirectTo,
+  requireAdminSessionFromRequest,
+} from "@/lib/admin-api";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
 import {
   isValidHomepageContent,
   parseHomepageFormData,
@@ -9,26 +16,8 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function getBaseUrl(request: NextRequest) {
-  const configuredUrl = process.env.APP_URL?.trim();
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
-  }
-
-  const host = request.headers.get("host") ?? "10.1.1.15:3002";
-  const protocol = request.headers.get("x-forwarded-proto") ?? "http";
-
-  return `${protocol}://${host}`;
-}
-
-function redirectTo(request: NextRequest, path: string, status = 303) {
-  return NextResponse.redirect(`${getBaseUrl(request)}${path}`, status);
-}
-
 export async function POST(request: NextRequest) {
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = token ? await verifySessionToken(token) : null;
+  const session = await requireAdminSessionFromRequest(request);
 
   if (!session) {
     return redirectTo(request, "/admin/homepage?error=session");
@@ -43,6 +32,16 @@ export async function POST(request: NextRequest) {
 
   try {
     await saveEditableHomepageContent(content);
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.HOMEPAGE_SAVED,
+      entityType: AUDIT_ENTITY_TYPES.HOMEPAGE,
+      entityName: "Homepage Hero and CTA",
+      description: `${session.name} updated homepage hero and CTA content.`,
+    });
+
     return redirectTo(request, "/admin/homepage?saved=1");
   } catch {
     return redirectTo(request, "/admin/homepage?error=validation");

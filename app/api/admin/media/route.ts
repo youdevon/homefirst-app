@@ -3,6 +3,11 @@ import {
   redirectTo,
   requireAdminSessionFromRequest,
 } from "@/lib/admin-api";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  logAuditEvent,
+} from "@/lib/audit-log";
 import { createMediaFileRecord } from "@/lib/media-data";
 import { saveUploadedMediaFile } from "@/lib/media-upload";
 
@@ -22,7 +27,9 @@ function getUploadErrorPath(error: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  if (!(await requireAdminSessionFromRequest(request))) {
+  const session = await requireAdminSessionFromRequest(request);
+
+  if (!session) {
     return redirectTo(request, "/admin/media?error=session");
   }
 
@@ -43,6 +50,16 @@ export async function POST(request: NextRequest) {
       fileType: savedFile.fileType,
       fileUrl: savedFile.fileUrl,
       altText: savedFile.category === "images" ? altText : undefined,
+    });
+
+    await logAuditEvent({
+      actor: session,
+      request,
+      action: AUDIT_ACTIONS.MEDIA_UPLOADED,
+      entityType: AUDIT_ENTITY_TYPES.MEDIA,
+      entityName: savedFile.originalName,
+      description: `${session.name} uploaded media file ${savedFile.originalName}.`,
+      metadata: { fileUrl: savedFile.fileUrl },
     });
 
     return redirectTo(request, "/admin/media?saved=1");

@@ -44,6 +44,11 @@ export async function getAllMediaFilesForAdmin(): Promise<EditableMediaFile[]> {
   return rows.map(mapDbMediaFile);
 }
 
+export async function getMediaFileById(id: string): Promise<EditableMediaFile | null> {
+  const row = await prisma.mediaFile.findUnique({ where: { id } });
+  return row ? mapDbMediaFile(row) : null;
+}
+
 export async function createMediaFileRecord(input: {
   fileName: string;
   originalName: string;
