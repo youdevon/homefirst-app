@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PageContent {
+  id         String   @id @default(cuid())
+  sectionKey String   @unique
+  title      String?
+  subtitle   String?
+  body       String?  @db.Text
+  imageUrl   String?
+  videoUrl   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Leader {
+  id           String   @id @default(cuid())
+  name         String
+  title        String
+  bio          String   @db.Text
+  photoUrl     String
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Scheme {
+  id           String   @id @default(cuid())
+  name         String
+  description  String   @db.Text
+  imageUrl     String
+  statusLabel  String
+  meta         String
+  active       Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model NewsItem {
+  id          String    @id @default(cuid())
+  title       String
+  category    String
+  summary     String    @db.Text
+  body        String?   @db.Text
+  imageUrl    String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model MediaFile {
+  id           String   @id @default(cuid())
+  fileName     String
+  originalName String
+  fileType     String
+  fileUrl      String
+  altText      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

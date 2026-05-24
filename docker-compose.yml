@@ -5,3 +5,23 @@ services:
     ports:
       - "3002:3000"
     restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://homefirst:homefirst@postgres:5432/homefirst?schema=public
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: homefirst-postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: homefirst
+      POSTGRES_PASSWORD: homefirst
+      POSTGRES_DB: homefirst
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
