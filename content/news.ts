@@ -7,6 +7,16 @@ export const newsSection = {
   sourceLabel: "HomeFirst Division",
 };
 
+export const mediaPage = {
+  eyebrow: "Media",
+  title: "News, Notices &",
+  titleEmphasis: "Updates",
+  description:
+    "Official notices, programme updates, community events, and press releases from the Division.",
+  heroBackground:
+    "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=85",
+};
+
 export const newsItems = [
   {
     category: "Notice",

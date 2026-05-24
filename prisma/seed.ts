@@ -5,6 +5,7 @@ import { aboutHero, aboutIntro, vision, mission } from "../content/about";
 import { leaders } from "../content/leaders";
 import { schemes } from "../content/schemes";
 import { newsItems } from "../content/news";
+import { slugifyTitle } from "../lib/news-slug";
 import { DEFAULT_ADMIN } from "../lib/auth/constants";
 import { DEFAULT_HERO_BACKGROUND_URL } from "../lib/homepage-content-data";
 import { hashPassword } from "../lib/auth/password";
@@ -175,12 +176,16 @@ async function main() {
 
   console.log("Seeding news items...");
   for (const [index, item] of newsItems.entries()) {
+    const slug = slugifyTitle(item.title);
+
     await prisma.newsItem.upsert({
       where: { id: `seed-news-${index + 1}` },
       update: {
         title: item.title,
+        slug,
         category: item.category,
         summary: item.text,
+        body: item.text,
         imageUrl: item.image,
         published: true,
         publishedAt: parsePublishedAt(item.date),
@@ -188,8 +193,10 @@ async function main() {
       create: {
         id: `seed-news-${index + 1}`,
         title: item.title,
+        slug,
         category: item.category,
         summary: item.text,
+        body: item.text,
         imageUrl: item.image,
         published: true,
         publishedAt: parsePublishedAt(item.date),

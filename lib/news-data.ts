@@ -1,4 +1,5 @@
 import { newsItems as contentNewsItems } from "@/content/news";
+import { slugifyTitle } from "@/lib/news-slug";
 import { prisma } from "@/lib/prisma";
 
 export const NEWS_CATEGORIES = [
@@ -6,11 +7,22 @@ export const NEWS_CATEGORIES = [
   "Update",
   "Event",
   "Press Release",
+  "News",
+] as const;
+
+export const MEDIA_FILTER_CATEGORIES = [
+  { label: "All", value: "" },
+  { label: "Notices", value: "Notice" },
+  { label: "Updates", value: "Update" },
+  { label: "Events", value: "Event" },
+  { label: "Press Releases", value: "Press Release" },
+  { label: "News", value: "News" },
 ] as const;
 
 export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
 
 export type PublicNewsItem = {
+  slug: string;
   category: string;
   title: string;
   text: string;
@@ -19,23 +31,68 @@ export type PublicNewsItem = {
   featured: boolean;
 };
 
+export type PublicNewsArticle = {
+  slug: string;
+  category: string;
+  title: string;
+  summary: string;
+  body: string;
+  dateLabel: string;
+  publishedAt: Date | null;
+  imageUrl: string;
+  imageUrlTwo: string;
+  imageUrlThree: string;
+  imageCaptionOne: string;
+  imageCaptionTwo: string;
+  imageCaptionThree: string;
+};
+
 export type EditableNewsItem = {
   id: string;
   title: string;
+  slug: string;
   category: string;
   summary: string;
   body: string;
   imageUrl: string;
+  imageUrlTwo: string;
+  imageUrlThree: string;
+  imageCaptionOne: string;
+  imageCaptionTwo: string;
+  imageCaptionThree: string;
   published: boolean;
   publishedAt: Date | null;
 };
 
 export type NewsFormInput = {
   title: string;
+  slug: string;
   category: string;
   summary: string;
   body: string;
   imageUrl: string;
+  imageUrlTwo: string;
+  imageUrlThree: string;
+  imageCaptionOne: string;
+  imageCaptionTwo: string;
+  imageCaptionThree: string;
+  published: boolean;
+  publishedAt: Date | null;
+};
+
+type DbNewsItem = {
+  id: string;
+  title: string;
+  slug: string | null;
+  category: string;
+  summary: string;
+  body: string | null;
+  imageUrl: string | null;
+  imageUrlTwo: string | null;
+  imageUrlThree: string | null;
+  imageCaptionOne: string | null;
+  imageCaptionTwo: string | null;
+  imageCaptionThree: string | null;
   published: boolean;
   publishedAt: Date | null;
 };
@@ -47,29 +104,54 @@ export function formatPublicDate(date: Date | null): string {
 
   return date.toLocaleDateString("en-US", {
     month: "long",
+    day: "numeric",
     year: "numeric",
   });
 }
 
-function mapDbNewsItem(item: {
-  id: string;
-  title: string;
-  category: string;
-  summary: string;
-  body: string | null;
-  imageUrl: string | null;
-  published: boolean;
-  publishedAt: Date | null;
-}): EditableNewsItem {
+function resolveSlug(title: string, slug: string | null | undefined): string {
+  const trimmed = slug?.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+
+  return slugifyTitle(title);
+}
+
+function mapDbNewsItem(item: DbNewsItem): EditableNewsItem {
   return {
     id: item.id,
     title: item.title,
+    slug: resolveSlug(item.title, item.slug),
     category: item.category,
     summary: item.summary,
     body: item.body ?? "",
     imageUrl: item.imageUrl ?? "",
+    imageUrlTwo: item.imageUrlTwo ?? "",
+    imageUrlThree: item.imageUrlThree ?? "",
+    imageCaptionOne: item.imageCaptionOne ?? "",
+    imageCaptionTwo: item.imageCaptionTwo ?? "",
+    imageCaptionThree: item.imageCaptionThree ?? "",
     published: item.published,
     publishedAt: item.publishedAt,
+  };
+}
+
+function mapPublicNewsArticle(item: EditableNewsItem): PublicNewsArticle {
+  return {
+    slug: item.slug,
+    category: item.category,
+    title: item.title,
+    summary: item.summary,
+    body: item.body,
+    dateLabel: formatPublicDate(item.publishedAt),
+    publishedAt: item.publishedAt,
+    imageUrl: item.imageUrl,
+    imageUrlTwo: item.imageUrlTwo,
+    imageUrlThree: item.imageUrlThree,
+    imageCaptionOne: item.imageCaptionOne,
+    imageCaptionTwo: item.imageCaptionTwo,
+    imageCaptionThree: item.imageCaptionThree,
   };
 }
 
@@ -78,6 +160,7 @@ function mapPublicNewsItem(
   featured: boolean,
 ): PublicNewsItem {
   return {
+    slug: item.slug,
     category: item.category,
     title: item.title,
     text: item.summary,
@@ -87,15 +170,59 @@ function mapPublicNewsItem(
   };
 }
 
-function getContentFallbackNewsItems(): PublicNewsItem[] {
-  return contentNewsItems.map((item) => ({
-    category: item.category,
+function getContentFallbackEditableItems(): EditableNewsItem[] {
+  return contentNewsItems.map((item, index) => ({
+    id: `fallback-${index + 1}`,
     title: item.title,
-    text: item.text,
-    date: item.date,
-    image: item.image,
-    featured: item.featured,
+    slug: slugifyTitle(item.title),
+    category: item.category,
+    summary: item.text,
+    body: item.text,
+    imageUrl: item.image,
+    imageUrlTwo: "",
+    imageUrlThree: "",
+    imageCaptionOne: "",
+    imageCaptionTwo: "",
+    imageCaptionThree: "",
+    published: true,
+    publishedAt: new Date(`${item.date} 1`),
   }));
+}
+
+function getContentFallbackNewsItems(): PublicNewsItem[] {
+  return getContentFallbackEditableItems().map((item, index) =>
+    mapPublicNewsItem(item, index === 0),
+  );
+}
+
+function getContentFallbackArticles(): PublicNewsArticle[] {
+  return getContentFallbackEditableItems().map(mapPublicNewsArticle);
+}
+
+export async function ensureUniqueNewsSlug(
+  preferredSlug: string,
+  excludeId?: string,
+): Promise<string> {
+  const base = slugifyTitle(preferredSlug) || "news-item";
+  let candidate = base;
+  let suffix = 2;
+
+  while (true) {
+    const existing = await prisma.newsItem.findFirst({
+      where: {
+        slug: candidate,
+        ...(excludeId ? { NOT: { id: excludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return candidate;
+    }
+
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
 }
 
 export function toDatetimeLocalValue(date: Date | null): string {
@@ -140,17 +267,91 @@ export async function getPublicNewsItems(): Promise<PublicNewsItem[]> {
   }
 }
 
+export async function getPublicNewsArticles(
+  category?: string,
+): Promise<PublicNewsArticle[]> {
+  try {
+    const rows = await prisma.newsItem.findMany({
+      where: {
+        published: true,
+        ...(category ? { category } : {}),
+      },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    });
+
+    if (rows.length === 0) {
+      const fallback = getContentFallbackArticles();
+      if (!category) {
+        return fallback;
+      }
+
+      return fallback.filter((item) => item.category === category);
+    }
+
+    return rows.map((item) => mapPublicNewsArticle(mapDbNewsItem(item)));
+  } catch {
+    const fallback = getContentFallbackArticles();
+    if (!category) {
+      return fallback;
+    }
+
+    return fallback.filter((item) => item.category === category);
+  }
+}
+
+export async function getPublicNewsArticleBySlug(
+  slug: string,
+): Promise<PublicNewsArticle | null> {
+  const normalizedSlug = slug.trim().toLowerCase();
+
+  try {
+    const row = await prisma.newsItem.findFirst({
+      where: {
+        slug: normalizedSlug,
+        published: true,
+      },
+    });
+
+    if (row) {
+      return mapPublicNewsArticle(mapDbNewsItem(row));
+    }
+  } catch {
+    // fall through to content fallback
+  }
+
+  const fallback = getContentFallbackArticles().find(
+    (item) => item.slug === normalizedSlug,
+  );
+
+  return fallback ?? null;
+}
+
+export async function getRelatedPublicNewsArticles(
+  slug: string,
+  limit = 3,
+): Promise<PublicNewsArticle[]> {
+  const articles = await getPublicNewsArticles();
+  return articles.filter((item) => item.slug !== slug).slice(0, limit);
+}
+
 export function parseNewsFormData(formData: FormData): NewsFormInput {
   const publishedAtRaw = String(formData.get("publishedAt") ?? "").trim();
   const publishedAt = publishedAtRaw ? new Date(publishedAtRaw) : null;
   const published = String(formData.get("published") ?? "false") === "true";
+  const read = (name: string) => String(formData.get(name) ?? "").trim();
 
   return {
-    title: String(formData.get("title") ?? "").trim(),
-    category: String(formData.get("category") ?? "").trim(),
-    summary: String(formData.get("summary") ?? "").trim(),
-    body: String(formData.get("body") ?? "").trim(),
-    imageUrl: String(formData.get("imageUrl") ?? "").trim(),
+    title: read("title"),
+    slug: read("slug"),
+    category: read("category"),
+    summary: read("summary"),
+    body: read("body"),
+    imageUrl: read("imageUrl"),
+    imageUrlTwo: read("imageUrlTwo"),
+    imageUrlThree: read("imageUrlThree"),
+    imageCaptionOne: read("imageCaptionOne"),
+    imageCaptionTwo: read("imageCaptionTwo"),
+    imageCaptionThree: read("imageCaptionThree"),
     published,
     publishedAt:
       publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt : null,
@@ -168,17 +369,37 @@ export function isValidNewsInput(input: NewsFormInput): boolean {
   );
 }
 
+function emptyToNull(value: string): string | null {
+  const trimmed = value.trim();
+  return trimmed || null;
+}
+
+async function resolveInputSlug(
+  input: NewsFormInput,
+  excludeId?: string,
+): Promise<string> {
+  const preferred = input.slug.trim() || slugifyTitle(input.title);
+  return ensureUniqueNewsSlug(preferred, excludeId);
+}
+
 export async function createNewsItem(input: NewsFormInput): Promise<void> {
   const publishedAt =
     input.published && !input.publishedAt ? new Date() : input.publishedAt;
+  const slug = await resolveInputSlug(input);
 
   await prisma.newsItem.create({
     data: {
       title: input.title,
+      slug,
       category: input.category,
       summary: input.summary,
       body: input.body || null,
       imageUrl: input.imageUrl,
+      imageUrlTwo: emptyToNull(input.imageUrlTwo),
+      imageUrlThree: emptyToNull(input.imageUrlThree),
+      imageCaptionOne: emptyToNull(input.imageCaptionOne),
+      imageCaptionTwo: emptyToNull(input.imageCaptionTwo),
+      imageCaptionThree: emptyToNull(input.imageCaptionThree),
       published: input.published,
       publishedAt: input.published ? publishedAt : null,
     },
@@ -191,15 +412,22 @@ export async function updateNewsItem(
 ): Promise<void> {
   const publishedAt =
     input.published && !input.publishedAt ? new Date() : input.publishedAt;
+  const slug = await resolveInputSlug(input, id);
 
   await prisma.newsItem.update({
     where: { id },
     data: {
       title: input.title,
+      slug,
       category: input.category,
       summary: input.summary,
       body: input.body || null,
       imageUrl: input.imageUrl,
+      imageUrlTwo: emptyToNull(input.imageUrlTwo),
+      imageUrlThree: emptyToNull(input.imageUrlThree),
+      imageCaptionOne: emptyToNull(input.imageCaptionOne),
+      imageCaptionTwo: emptyToNull(input.imageCaptionTwo),
+      imageCaptionThree: emptyToNull(input.imageCaptionThree),
       published: input.published,
       publishedAt: input.published ? publishedAt : null,
     },

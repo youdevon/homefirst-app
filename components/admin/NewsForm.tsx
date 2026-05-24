@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableNewsItem } from "@/lib/news-data";
 import { NEWS_CATEGORIES, toDatetimeLocalValue } from "@/lib/news-data";
@@ -28,6 +29,20 @@ export default function NewsForm({
             required
             placeholder="Applications Now Open for the Family Housing Scheme"
           />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Slug</span>
+          <input
+            type="text"
+            name="slug"
+            defaultValue={item?.slug ?? ""}
+            placeholder="applications-open-family-housing-scheme"
+          />
+          <span className="admin-form-help">
+            Leave blank to auto-generate from the title. Used in the public URL
+            /media/your-slug.
+          </span>
         </label>
 
         <label className="admin-field">
@@ -66,13 +81,63 @@ export default function NewsForm({
         </label>
 
         <label className="admin-field admin-field-full">
-          <span>Image URL</span>
+          <span>Main image URL</span>
           <AdminMediaUrlField
             name="imageUrl"
             defaultValue={item?.imageUrl ?? ""}
             options={imageFiles}
             required
             placeholder="/uploads/images/news-item.jpg"
+          />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Main image caption</span>
+          <input
+            type="text"
+            name="imageCaptionOne"
+            defaultValue={item?.imageCaptionOne ?? ""}
+            placeholder="Optional caption for the main image"
+          />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Second image URL (optional)</span>
+          <AdminMediaUrlField
+            name="imageUrlTwo"
+            defaultValue={item?.imageUrlTwo ?? ""}
+            options={imageFiles}
+            placeholder="/uploads/images/news-secondary.jpg"
+          />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Second image caption</span>
+          <input
+            type="text"
+            name="imageCaptionTwo"
+            defaultValue={item?.imageCaptionTwo ?? ""}
+            placeholder="Optional caption for the second image"
+          />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Third image URL (optional)</span>
+          <AdminMediaUrlField
+            name="imageUrlThree"
+            defaultValue={item?.imageUrlThree ?? ""}
+            options={imageFiles}
+            placeholder="/uploads/images/news-third.jpg"
+          />
+        </label>
+
+        <label className="admin-field admin-field-full">
+          <span>Third image caption</span>
+          <input
+            type="text"
+            name="imageCaptionThree"
+            defaultValue={item?.imageCaptionThree ?? ""}
+            placeholder="Optional caption for the third image"
           />
         </label>
 
@@ -87,11 +152,12 @@ export default function NewsForm({
         </label>
 
         <label className="admin-field admin-field-full">
-          <span>Body</span>
+          <span>Full article body</span>
           <textarea
             name="body"
             defaultValue={item?.body ?? ""}
-            placeholder="Full article content for future detail pages."
+            placeholder="Full article content. Separate paragraphs with a blank line."
+            rows={12}
           />
         </label>
       </div>

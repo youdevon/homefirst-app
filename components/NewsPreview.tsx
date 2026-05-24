@@ -25,21 +25,23 @@ export default async function NewsPreview() {
           {newsItems.map((item) => (
             <article
               className={item.featured ? "nc feat" : "nc"}
-              key={`${item.title}-${item.date}`}
+              key={item.slug}
             >
-              <div className="ni">
-                <img src={item.image} alt={item.title} />
-              </div>
-
-              <div className="nb">
-                <span className="ncat">{item.category}</span>
-                <h4>{item.title}</h4>
-                <p>{item.text}</p>
-                <div className="nmeta">
-                  <span>{item.date}</span>
-                  <span>{newsSection.sourceLabel}</span>
+              <Link href={`/media/${item.slug}`} className="news-card-link">
+                <div className="ni">
+                  <img src={item.image} alt={item.title} />
                 </div>
-              </div>
+
+                <div className="nb">
+                  <span className="ncat">{item.category}</span>
+                  <h4>{item.title}</h4>
+                  <p>{item.text}</p>
+                  <div className="nmeta">
+                    <span>{item.date}</span>
+                    <span>{newsSection.sourceLabel}</span>
+                  </div>
+                </div>
+              </Link>
             </article>
           ))}
         </div>
