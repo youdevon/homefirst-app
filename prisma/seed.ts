@@ -5,6 +5,8 @@ import { aboutHero, aboutIntro, vision, mission } from "../content/about";
 import { leaders } from "../content/leaders";
 import { schemes } from "../content/schemes";
 import { newsItems } from "../content/news";
+import { DEFAULT_ADMIN } from "../lib/auth/constants";
+import { hashPassword } from "../lib/auth/password";
 
 const prisma = new PrismaClient();
 
@@ -224,6 +226,27 @@ async function main() {
       },
     });
   }
+
+  console.log("Seeding admin user...");
+  const passwordHash = await hashPassword(DEFAULT_ADMIN.password);
+
+  await prisma.adminUser.upsert({
+    where: { email: DEFAULT_ADMIN.email },
+    update: {
+      name: DEFAULT_ADMIN.name,
+      passwordHash,
+      role: DEFAULT_ADMIN.role,
+      active: true,
+    },
+    create: {
+      id: DEFAULT_ADMIN.id,
+      name: DEFAULT_ADMIN.name,
+      email: DEFAULT_ADMIN.email,
+      passwordHash,
+      role: DEFAULT_ADMIN.role,
+      active: true,
+    },
+  });
 
   console.log("Seed completed.");
 }

@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://homefirst:homefirst@postgres:5432/homefirst?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:-homefirst-dev-auth-secret-change-in-production}
     depends_on:
       - postgres
 
