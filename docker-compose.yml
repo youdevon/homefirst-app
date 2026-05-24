@@ -1,0 +1,7 @@
+services:
+  homefirst-app:
+    build: .
+    container_name: homefirst-app
+    ports:
+      - "3002:3000"
+    restart: unless-stopped
