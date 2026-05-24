@@ -27,9 +27,11 @@ export default function AdminShell({ session, children }: AdminShellProps) {
             <Link href="/" className="admin-btn admin-btn-ghost">
               View Site
             </Link>
-            <Link href="/admin/logout" className="admin-btn admin-btn-secondary">
-              Log Out
-            </Link>
+            <form method="post" action="/admin/logout">
+  <button type="submit" className="admin-btn admin-btn-secondary">
+    Log Out
+  </button>
+</form>
           </div>
         </div>
       </header>

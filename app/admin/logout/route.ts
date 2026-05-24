@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { clearSessionCookie } from "@/lib/auth/session";
 
-export async function GET(request: NextRequest) {
-  await clearSessionCookie();
-  return NextResponse.redirect(new URL("/admin/login", request.url));
+export async function GET() {
+  return NextResponse.redirect(new URL("/admin/dashboard", process.env.APP_URL));
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   await clearSessionCookie();
-  return NextResponse.redirect(new URL("/admin/login", request.url));
+  return NextResponse.redirect(new URL("/admin/login", process.env.APP_URL), 303);
 }

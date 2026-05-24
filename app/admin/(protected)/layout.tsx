@@ -1,17 +1,12 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
 import AdminShell from "@/components/admin/AdminShell";
+import { requireAdminSession } from "@/lib/auth/require-admin-session";
 
 export default async function ProtectedAdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-
-  if (!session) {
-    redirect("/admin/login");
-  }
+  const session = await requireAdminSession();
 
   return <AdminShell session={session}>{children}</AdminShell>;
 }

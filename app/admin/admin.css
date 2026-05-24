@@ -82,6 +82,11 @@
 
 .admin-page-header {
   margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .admin-eyebrow {
@@ -270,6 +275,12 @@
   border: 1px solid #f5c2c2;
 }
 
+.admin-alert-success {
+  background: #ecf8f1;
+  color: #1f5a3d;
+  border: 1px solid #bfe3cc;
+}
+
 .admin-login-note {
   margin-top: 1rem;
   font-size: 0.82rem;
@@ -284,6 +295,71 @@
   color: #5f6664;
 }
 
+.admin-note {
+  background: #fff8ea;
+  border: 1px solid #ecd39d;
+  color: #6f5730;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  margin-bottom: 1rem;
+}
+
+.admin-panel {
+  background: #fff;
+  border: 1px solid #d8e0dd;
+  border-radius: 0.9rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(26, 58, 56, 0.06);
+}
+
+.admin-settings-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-field-full {
+  grid-column: 1 / -1;
+}
+
+.admin-field textarea {
+  width: 100%;
+  border: 1px solid #cfd8d5;
+  border-radius: 0.55rem;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+}
+
+.admin-btn-dark {
+  background: #1a3a38;
+  color: #fff;
+}
+
+.admin-back-link {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2d5f5d;
+  white-space: nowrap;
+}
+
+.admin-back-link:hover {
+  color: #b85c32;
+}
+
 @media (max-width: 640px) {
   .admin-header-inner {
     align-items: flex-start;
@@ -291,5 +367,9 @@
 
   .admin-page h1 {
     font-size: 1.6rem;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
   }
 }

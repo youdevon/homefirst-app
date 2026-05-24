@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 import { SignJWT, jwtVerify } from "jose";
 import {
   SESSION_COOKIE_NAME,
@@ -73,12 +74,24 @@ export async function getSession(): Promise<AdminSession | null> {
   return verifySessionToken(token);
 }
 
+export async function getSessionFromRequest(
+  request: NextRequest,
+): Promise<AdminSession | null> {
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  return verifySessionToken(token);
+}
+
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
 
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE_SECONDS,
@@ -90,7 +103,7 @@ export async function clearSessionCookie(): Promise<void> {
 
   cookieStore.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     sameSite: "lax",
     path: "/",
     maxAge: 0,

@@ -1,21 +1,6 @@
-"use client";
-
-import { useActionState } from "react";
-import { loginAction, type LoginState } from "./actions";
-
-const initialState: LoginState = {};
-
 export default function LoginForm() {
-  const [state, formAction, pending] = useActionState(loginAction, initialState);
-
   return (
-    <form action={formAction} className="admin-login-form">
-      {state.error ? (
-        <div className="admin-alert admin-alert-error" role="alert">
-          {state.error}
-        </div>
-      ) : null}
-
+    <form method="post" action="/api/admin/login" className="admin-login-form">
       <label className="admin-field">
         <span>Email</span>
         <input
@@ -38,8 +23,8 @@ export default function LoginForm() {
         />
       </label>
 
-      <button type="submit" className="admin-btn admin-btn-primary" disabled={pending}>
-        {pending ? "Signing in..." : "Sign In"}
+      <button type="submit" className="admin-btn admin-btn-primary">
+        Sign In
       </button>
     </form>
   );

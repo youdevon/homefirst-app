@@ -34,7 +34,7 @@ const dashboardCards = [
   {
     title: "Site Settings",
     description: "Edit contact details, footer links, and global site settings.",
-    href: "/admin/settings",
+    href: "/admin/site-settings",
     icon: "⚙",
   },
 ];

@@ -1,6 +1,13 @@
 import LoginForm from "./LoginForm";
 
-export default function AdminLoginPage() {
+type AdminLoginPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
+  const params = await searchParams;
+  const showInvalidError = params.error === "invalid";
+
   return (
     <div className="admin-login-page">
       <div className="admin-login-card">
@@ -11,6 +18,12 @@ export default function AdminLoginPage() {
             <p>Sign in to manage website content</p>
           </div>
         </div>
+
+        {showInvalidError ? (
+          <div className="admin-alert admin-alert-error" role="alert">
+            Invalid email or password.
+          </div>
+        ) : null}
 
         <LoginForm />
 

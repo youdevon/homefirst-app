@@ -8,6 +8,8 @@ services:
     environment:
       DATABASE_URL: postgresql://homefirst:homefirst@postgres:5432/homefirst?schema=public
       AUTH_SECRET: ${AUTH_SECRET:-homefirst-dev-auth-secret-change-in-production}
+      APP_URL: http://10.1.1.15:3002
+      NEXT_PUBLIC_APP_URL: http://10.1.1.15:3002
     depends_on:
       - postgres
 
