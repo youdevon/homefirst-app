@@ -1919,3 +1919,165 @@ a {
     height: 300px;
   }
 }
+
+/* Contact Page */
+.contact-page-hero {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.contact-page-section {
+  background: var(--bg-base);
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.contact-details-panel .sec-title {
+  margin-bottom: 1.5rem;
+}
+
+.contact-details-list {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.contact-details-list li {
+  display: grid;
+  gap: .35rem;
+}
+
+.contact-details-list strong {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.contact-details-list span,
+.contact-details-list a {
+  font-size: .95rem;
+  color: var(--text-head);
+  line-height: 1.6;
+}
+
+.contact-details-list a:hover {
+  color: var(--amber);
+}
+
+.contact-instructions {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.contact-instructions-title {
+  font-size: 1.35rem;
+  color: var(--text-head);
+  margin-bottom: .75rem;
+}
+
+.contact-instructions-title em {
+  color: var(--amber);
+  font-style: italic;
+}
+
+.contact-instructions p {
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.contact-instructions ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.contact-side-panel {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.contact-form-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: var(--sh-sm);
+}
+
+.contact-form-box h4 {
+  font-size: 1rem;
+  color: var(--text-head);
+  margin-bottom: .65rem;
+}
+
+.contact-form-note {
+  font-size: .88rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.contact-form-fields {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.contact-message-input {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.contact-form-submit:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.contact-map-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--card);
+  min-height: 260px;
+}
+
+.contact-map-embed {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  border: 0;
+}
+
+.contact-map-link-wrap {
+  padding: 1rem 0;
+}
+
+.contact-map-link {
+  font-weight: 700;
+  color: var(--gov-mid);
+}
+
+.contact-map-link:hover {
+  color: var(--amber);
+}
+
+.contact-cards-section {
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+}

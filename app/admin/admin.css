@@ -479,6 +479,20 @@
   font-weight: 400;
 }
 
+.admin-card-slot {
+  border: 1px solid #e2e8e6;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fafbfb;
+}
+
+.admin-card-slot-title {
+  margin: 0 0 0.85rem;
+  color: #1a3a38;
+  font-size: 0.95rem;
+}
+
 .admin-media-table code.admin-media-url {
   display: block;
   padding: 0.45rem 0.55rem;

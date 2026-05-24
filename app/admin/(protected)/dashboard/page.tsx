@@ -38,6 +38,12 @@ const dashboardCards = [
     icon: "📰",
   },
   {
+    title: "Contact Page",
+    description: "Edit the public contact page hero, details, and quick-action cards.",
+    href: "/admin/contact",
+    icon: "📞",
+  },
+  {
     title: "Site Settings",
     description: "Edit contact details, footer links, and global site settings.",
     href: "/admin/site-settings",
