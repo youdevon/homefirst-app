@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { mediaPage } from "@/content/news";
 import MediaCategoryFilter from "@/components/MediaCategoryFilter";
 import { getPublicNewsArticles } from "@/lib/news-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Media",
+};
 
 type MediaPageProps = {
   searchParams?: Promise<{ category?: string }>;

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import NewsArticleBody from "@/components/NewsArticleBody";
@@ -11,6 +12,19 @@ export const dynamic = "force-dynamic";
 type MediaArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: MediaArticlePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getPublicNewsArticleBySlug(slug);
+
+  if (!article) {
+    return { title: "Article" };
+  }
+
+  return { title: article.title };
+}
 
 export default async function MediaArticlePage({ params }: MediaArticlePageProps) {
   const { slug } = await params;
@@ -49,34 +63,35 @@ export default async function MediaArticlePage({ params }: MediaArticlePageProps
           ) : null}
 
           <NewsArticleBody article={article} />
-
-          {relatedArticles.length > 0 ? (
-            <section className="article-related">
-              <h2>Recent Updates</h2>
-              <div className="article-related-grid">
-                {relatedArticles.map((item) => (
-                  <article className="media-article-card" key={item.slug}>
-                    <Link href={`/media/${item.slug}`} className="media-article-link">
-                      <div className="media-article-image">
-                        <img src={item.imageUrl} alt={item.title} />
-                      </div>
-                      <div className="media-article-body">
-                        <span className="ncat">{item.category}</span>
-                        <h3>{item.title}</h3>
-                        <p>{item.summary}</p>
-                        <div className="media-card-meta">
-                          <span>{item.dateLabel}</span>
-                          <span className="media-read-more">Read More →</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ) : null}
         </div>
       </section>
+
+      {relatedArticles.length > 0 ? (
+        <section className="recent-updates-section">
+          <div className="wrap">
+            <h2 className="recent-updates-title">Recent Updates</h2>
+            <div className="recent-updates-rail">
+              {relatedArticles.map((item) => (
+                <article className="recent-update-card" key={item.slug}>
+                  <Link href={`/media/${item.slug}`} className="recent-update-link">
+                    <div className="recent-update-thumb">
+                      <img src={item.imageUrl} alt={item.title} />
+                    </div>
+                    <div className="recent-update-body">
+                      <span className="ncat">{item.category}</span>
+                      <h3>{item.title}</h3>
+                      <div className="recent-update-meta">
+                        <span>{item.dateLabel}</span>
+                        <span className="media-read-more">Read More →</span>
+                      </div>
+                    </div>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

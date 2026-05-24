@@ -1235,6 +1235,7 @@ a {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 1.6rem;
+  align-items: stretch;
 }
 
 .nc {
@@ -1244,6 +1245,17 @@ a {
   border: 1px solid var(--border);
   box-shadow: var(--sh-sm);
   transition: all .24s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.nc .news-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
 }
 
 .nc:hover {
@@ -1272,7 +1284,15 @@ a {
 }
 
 .nb {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   padding: 1.3rem;
+  min-height: 210px;
+}
+
+.nc.feat .nb {
+  min-height: 220px;
 }
 
 .ncat {
@@ -1290,6 +1310,10 @@ a {
   margin-bottom: .5rem;
   line-height: 1.3;
   color: var(--text-head);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .nc.feat .nb h4 {
@@ -1301,6 +1325,10 @@ a {
   color: var(--text-muted);
   line-height: 1.68;
   margin-bottom: .9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .nmeta {
@@ -1309,6 +1337,7 @@ a {
   display: flex;
   gap: .9rem;
   flex-wrap: wrap;
+  margin-top: auto;
 }
 
 @media(max-width: 900px) {
@@ -2316,8 +2345,7 @@ a {
 }
 
 .media-featured-link,
-.media-article-link,
-.news-card-link {
+.media-article-link {
   display: block;
   color: inherit;
   text-decoration: none;
@@ -2372,8 +2400,7 @@ a {
   margin-bottom: 1rem;
 }
 
-.media-articles-grid,
-.article-related-grid {
+.media-articles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
@@ -2537,16 +2564,111 @@ a {
   clear: both;
 }
 
-.article-related {
-  margin-top: 3rem;
-  padding-top: 2rem;
+.recent-updates-section {
+  background: linear-gradient(
+    180deg,
+    rgba(247, 243, 236, 0.82) 0%,
+    var(--bg-alt) 100%
+  );
+  padding: 3.5rem 0 4rem;
   border-top: 1px solid var(--border);
 }
 
-.article-related h2 {
+.recent-updates-title {
   font-size: 1.35rem;
   color: var(--text-head);
-  margin-bottom: 1.25rem;
+  margin: 0 0 1.25rem;
+}
+
+.recent-updates-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26, 58, 56, 0.22) transparent;
+}
+
+.recent-updates-rail::-webkit-scrollbar {
+  height: 8px;
+}
+
+.recent-updates-rail::-webkit-scrollbar-track {
+  background: rgba(26, 58, 56, 0.06);
+  border-radius: 999px;
+}
+
+.recent-updates-rail::-webkit-scrollbar-thumb {
+  background: rgba(26, 58, 56, 0.22);
+  border-radius: 999px;
+}
+
+.recent-update-card {
+  flex: 0 0 280px;
+  max-width: 280px;
+  min-height: 250px;
+  scroll-snap-align: start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+  transition: transform 0.22s, box-shadow 0.22s;
+}
+
+.recent-update-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-md);
+}
+
+.recent-update-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.recent-update-thumb {
+  height: 120px;
+  overflow: hidden;
+  background: rgba(238, 232, 223, 0.65);
+}
+
+.recent-update-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.recent-update-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem 1.05rem 1.1rem;
+}
+
+.recent-update-body h3 {
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--text-head);
+  margin: 0.35rem 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recent-update-meta {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 @media (max-width: 900px) {
@@ -2558,8 +2680,7 @@ a {
     min-height: 240px;
   }
 
-  .media-articles-grid,
-  .article-related-grid {
+  .media-articles-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2569,5 +2690,21 @@ a {
     float: none;
     max-width: none;
     margin: 0 0 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .recent-updates-section {
+    padding: 2.75rem 0 3.25rem;
+  }
+
+  .recent-update-card {
+    flex-basis: 240px;
+    max-width: 240px;
+    min-height: 235px;
+  }
+
+  .recent-update-thumb {
+    height: 108px;
   }
 }

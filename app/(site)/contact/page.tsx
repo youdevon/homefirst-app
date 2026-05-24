@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublicContactContent } from "@/lib/contact-content-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Contact",
+};
 
 export default async function ContactPage() {
   const content = await getPublicContactContent();

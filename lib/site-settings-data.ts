@@ -9,6 +9,7 @@ export type EditableSiteSettings = {
   officeHours: string;
   copyright: string;
   logoUrl: string;
+  faviconUrl: string;
 };
 
 export type PublicSiteSettings = {
@@ -16,6 +17,7 @@ export type PublicSiteSettings = {
   tagline: string;
   crest: string;
   logoUrl: string | null;
+  faviconUrl: string | null;
   phone: {
     display: string;
     href: string;
@@ -37,6 +39,7 @@ export const SITE_SETTING_KEYS = {
   officeHours: "site.officeHours",
   copyright: "site.copyright",
   logoUrl: "site.logoUrl",
+  faviconUrl: "site.faviconUrl",
 } as const;
 
 const LEGACY_SETTING_KEYS = {
@@ -53,6 +56,7 @@ export function getDefaultSiteSettings(): EditableSiteSettings {
     officeHours: site.officeHours,
     copyright: site.copyright,
     logoUrl: "",
+    faviconUrl: "",
   };
 }
 
@@ -73,6 +77,7 @@ export function toPublicSiteSettings(
     tagline: settings.tagline,
     crest: site.crest,
     logoUrl: settings.logoUrl.trim() || null,
+    faviconUrl: settings.faviconUrl.trim() || null,
     phone: {
       display: settings.phone,
       href: toPhoneHref(settings.phone),
@@ -124,6 +129,7 @@ export async function getEditableSiteSettings(): Promise<EditableSiteSettings> {
       values.get(SITE_SETTING_KEYS.officeHours) ?? defaults.officeHours,
     copyright: values.get(SITE_SETTING_KEYS.copyright) ?? defaults.copyright,
     logoUrl: values.get(SITE_SETTING_KEYS.logoUrl) ?? defaults.logoUrl,
+    faviconUrl: values.get(SITE_SETTING_KEYS.faviconUrl) ?? defaults.faviconUrl,
   };
 }
 
@@ -138,6 +144,7 @@ export async function saveEditableSiteSettings(
     { key: SITE_SETTING_KEYS.officeHours, value: input.officeHours.trim() },
     { key: SITE_SETTING_KEYS.copyright, value: input.copyright.trim() },
     { key: SITE_SETTING_KEYS.logoUrl, value: input.logoUrl.trim() },
+    { key: SITE_SETTING_KEYS.faviconUrl, value: input.faviconUrl.trim() },
   ];
 
   await prisma.$transaction(

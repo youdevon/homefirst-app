@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { getPublicAboutContent } from "@/lib/about-content-data";
 import { getPublicLeaders } from "@/lib/leaders-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "About",
+};
 
 export default async function AboutPage() {
   const [about, leaders] = await Promise.all([

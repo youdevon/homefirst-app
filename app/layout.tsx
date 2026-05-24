@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { getRootSiteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "HomeFirst Division",
-  description: "Housing, Community & Social Development",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getRootSiteMetadata();
+}
 
 export default function RootLayout({
   children,

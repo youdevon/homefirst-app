@@ -84,6 +84,20 @@ export default function SiteSettingsForm({
         </label>
 
         <label className="admin-field admin-field-full">
+          <span>Browser Tab Icon URL</span>
+          <AdminMediaUrlField
+            name="faviconUrl"
+            defaultValue={settings.faviconUrl}
+            options={imageFiles}
+            placeholder="/uploads/images/tha-icon.png"
+          />
+          <span className="admin-form-help">
+            Upload a square icon in Media Library, then paste/select its URL here.
+            Recommended: square PNG or ICO.
+          </span>
+        </label>
+
+        <label className="admin-field admin-field-full">
           <span>Footer copyright text</span>
           <input
             type="text"

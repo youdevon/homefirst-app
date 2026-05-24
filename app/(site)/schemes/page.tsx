@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   schemeCardCtaLabels,
@@ -8,6 +9,10 @@ import {
 import { getPublicSchemes, getSchemeCtaHref } from "@/lib/schemes-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Housing Schemes",
+};
 
 function getSchemeCtaLabel(open: boolean): string {
   return open ? schemeCardCtaLabels.apply : schemeCardCtaLabels.eligibility;

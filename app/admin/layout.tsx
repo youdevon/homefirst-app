@@ -6,7 +6,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const branding = await getAdminBranding();
 
   return {
-    title: branding.adminTitle,
+    title: {
+      absolute: branding.adminTitle,
+    },
     robots: {
       index: false,
       follow: false,
