@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import SchemesTable from "@/components/admin/SchemesTable";
 import { getAllSchemesForAdmin } from "@/lib/schemes-data";
 
@@ -22,10 +23,11 @@ export default async function AdminSchemesPage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Homepage</p>
+          <p className="admin-eyebrow">Shared Content</p>
           <h1>Housing Schemes</h1>
           <p className="admin-lead">
-            Manage housing scheme cards shown on the public homepage.
+            Manage individual housing scheme records. Updates here appear on
+            the homepage preview, /schemes page, and related links.
           </p>
         </div>
         <div className="admin-header-actions-inline">
@@ -37,6 +39,18 @@ export default async function AdminSchemesPage({
           </Link>
         </div>
       </div>
+
+      <AdminScopeNotice
+        manages={[
+          "Scheme titles, descriptions, images, status labels, and links",
+        ]}
+        doesNotManage={[
+          "Housing Schemes page hero, intro text, and page call-to-action",
+        ]}
+        relatedLinks={[
+          { label: "Edit Housing Schemes page", href: "/admin/schemes-page" },
+        ]}
+      />
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

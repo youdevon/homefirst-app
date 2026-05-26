@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import MediaLibraryTable from "@/components/admin/MediaLibraryTable";
 import MediaUploadForm from "@/components/admin/MediaUploadForm";
 import { getAllMediaFilesForAdmin } from "@/lib/media-data";
@@ -44,17 +45,25 @@ export default async function AdminMediaPage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Assets</p>
+          <p className="admin-eyebrow">Shared Content</p>
           <h1>Media Library</h1>
           <p className="admin-lead">
-            Upload and manage images, videos, and documents for use across the
-            site.
+            Upload and manage images, videos, and documents. Files uploaded here
+            can be selected in page editors across the website.
           </p>
         </div>
         <Link href="/admin/dashboard" className="admin-back-link">
           ← Back to dashboard
         </Link>
       </div>
+
+      <AdminScopeNotice
+        manages={["Uploaded images, videos, documents, and alt text"]}
+        doesNotManage={[
+          "News articles and page body text",
+          "Which files appear on a page (selected in each page editor)",
+        ]}
+      />
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

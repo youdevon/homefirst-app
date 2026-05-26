@@ -1,37 +1,33 @@
 import Link from "next/link";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
-import ContactContentForm from "@/components/admin/ContactContentForm";
-import { getEditableContactContent } from "@/lib/contact-content-data";
+import MediaPageContentForm from "@/components/admin/MediaPageContentForm";
+import { getEditableMediaPageContent } from "@/lib/media-page-content-data";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
-type AdminContactPageProps = {
+type AdminMediaPageEditorProps = {
   searchParams?: Promise<{ saved?: string; error?: string }>;
 };
 
-export default async function AdminContactPage({
+export default async function AdminMediaPageEditor({
   searchParams,
-}: AdminContactPageProps) {
+}: AdminMediaPageEditorProps) {
   const params = searchParams ? await searchParams : {};
   const [content, mediaAssets] = await Promise.all([
-    getEditableContactContent(),
+    getEditableMediaPageContent(),
     getAdminMediaSelectorAssets(),
   ]);
-
-  const showSuccess = params.saved === "1";
-  const showSessionError = params.error === "session";
-  const showValidationError = params.error === "validation";
 
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Page Content</p>
-          <h1>Contact Page</h1>
+          <h1>Media Page</h1>
           <p className="admin-lead">
-            Edit the Contact page hero, office details, instructions, and
-            quick-action cards.
+            Edit the public /media page hero and section wording. News articles
+            and notices are managed separately.
           </p>
         </div>
         <Link href="/admin/dashboard" className="admin-back-link">
@@ -41,38 +37,36 @@ export default async function AdminContactPage({
 
       <AdminScopeNotice
         manages={[
-          "Contact page hero and page-specific contact sections",
-          "Contact cards and instructions on the Contact page",
+          "Media page hero and background image",
+          "Intro wording above the article listing",
         ]}
         doesNotManage={[
-          "Global header phone and email from Site Settings",
-          "Leader profiles and news articles",
+          "Individual news and notice articles",
+          "Header, footer, and global branding",
         ]}
         relatedLinks={[
-          { label: "Edit global site settings", href: "/admin/site-settings" },
+          { label: "Manage news and notices", href: "/admin/news" },
         ]}
       />
 
-      {showSuccess ? (
+      {params.saved === "1" ? (
         <div className="admin-alert admin-alert-success" role="status">
-          Contact page content saved successfully.
+          Media page content saved successfully.
         </div>
       ) : null}
-
-      {showSessionError ? (
+      {params.error === "session" ? (
         <div className="admin-alert admin-alert-error" role="alert">
           Your session has expired. Please sign in again.
         </div>
       ) : null}
-
-      {showValidationError ? (
+      {params.error === "validation" ? (
         <div className="admin-alert admin-alert-error" role="alert">
           Please complete all required fields correctly.
         </div>
       ) : null}
 
       <div className="admin-panel">
-        <ContactContentForm
+        <MediaPageContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}
         />

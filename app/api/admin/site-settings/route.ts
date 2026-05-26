@@ -9,9 +9,14 @@ import {
   logAuditEvent,
 } from "@/lib/audit-log";
 import {
+  getEditableSiteSettings,
   saveEditableSiteSettings,
   type EditableSiteSettings,
 } from "@/lib/site-settings-data";
+import {
+  getThemePresetLabel,
+  normalizeThemePreset,
+} from "@/lib/theme-presets";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +34,11 @@ function parseSettings(formData: FormData): EditableSiteSettings {
     copyright: readFormField(formData, "copyright"),
     logoUrl: readFormField(formData, "logoUrl"),
     faviconUrl: readFormField(formData, "faviconUrl"),
+    socialFacebook: readFormField(formData, "socialFacebook"),
+    socialInstagram: readFormField(formData, "socialInstagram"),
+    socialYoutube: readFormField(formData, "socialYoutube"),
+    socialLinkedin: readFormField(formData, "socialLinkedin"),
+    themePreset: normalizeThemePreset(readFormField(formData, "themePreset")),
   };
 }
 
@@ -84,6 +94,7 @@ export async function POST(request: NextRequest) {
   }
 
   const formData = await request.formData();
+  const previousSettings = await getEditableSiteSettings();
   const settings = parseSettings(formData);
 
   if (!isValidSettings(settings)) {
@@ -93,16 +104,24 @@ export async function POST(request: NextRequest) {
   try {
     await saveEditableSiteSettings(settings);
 
+    const themeChanged =
+      previousSettings.themePreset !== settings.themePreset;
+    const description = themeChanged
+      ? `${session.name} changed the public website theme to ${getThemePresetLabel(settings.themePreset)}.`
+      : `${session.name} updated Site Settings.`;
+
     await logAuditEvent({
       actor: session,
       request,
       action: AUDIT_ACTIONS.SITE_SETTINGS_SAVED,
       entityType: AUDIT_ENTITY_TYPES.SITE_SETTINGS,
       entityName: settings.name,
-      description: `${session.name} updated Site Settings.`,
+      description,
       metadata: {
         siteName: settings.name,
         tagline: settings.tagline,
+        themePreset: settings.themePreset,
+        themeChanged,
       },
     });
 

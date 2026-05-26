@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import LeadersTable from "@/components/admin/LeadersTable";
 import { getAllLeadersForAdmin } from "@/lib/leaders-data";
 
@@ -22,10 +23,11 @@ export default async function AdminLeadersPage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">About Page</p>
+          <p className="admin-eyebrow">Shared Content</p>
           <h1>Leaders</h1>
           <p className="admin-lead">
-            Manage leadership profiles shown on the public About page.
+            Manage leader profiles. Updates here appear wherever leader cards
+            are shown, including the About page.
           </p>
         </div>
         <div className="admin-header-actions-inline">
@@ -37,6 +39,16 @@ export default async function AdminLeadersPage({
           </Link>
         </div>
       </div>
+
+      <AdminScopeNotice
+        manages={["Leader names, titles, photos, bios, and display order"]}
+        doesNotManage={[
+          "About page hero, vision, mission, and section headings",
+        ]}
+        relatedLinks={[
+          { label: "Edit About page sections", href: "/admin/about" },
+        ]}
+      />
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

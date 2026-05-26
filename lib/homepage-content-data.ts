@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client";
 
 export const HERO_SECTION_KEY = "home.hero";
 export const CTA_SECTION_KEY = "home.cta";
+export const HERO_BACKGROUND_IMAGE_SLOTS = 5;
 
 export const DEFAULT_HERO_BACKGROUND_URL =
   "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1800&q=85";
@@ -18,6 +19,7 @@ export type EditableHomeHero = {
   secondaryCtaLabel: string;
   secondaryCtaHref: string;
   backgroundImageUrl: string;
+  heroImages: string[];
 };
 
 export type EditableCtaBanner = {
@@ -45,7 +47,9 @@ export type PublicCtaBanner = EditableCtaBanner & {
 };
 
 export type PublicHomepageContent = {
-  hero: EditableHomeHero;
+  hero: EditableHomeHero & {
+    backgroundImages: string[];
+  };
   ctaBanner: PublicCtaBanner;
 };
 
@@ -67,6 +71,39 @@ function asCtaObject(value: unknown): { label?: string; href?: string } {
   };
 }
 
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeHeroImageSlots(values: string[]): string[] {
+  const slots = Array.from({ length: HERO_BACKGROUND_IMAGE_SLOTS }, (_, index) =>
+    (values[index] ?? "").trim(),
+  );
+
+  return slots;
+}
+
+export function resolvePublicHeroBackgroundImages(hero: EditableHomeHero): string[] {
+  const fromList = hero.heroImages.filter(Boolean);
+
+  if (fromList.length > 0) {
+    return fromList;
+  }
+
+  if (hero.backgroundImageUrl.trim()) {
+    return [hero.backgroundImageUrl.trim()];
+  }
+
+  return [DEFAULT_HERO_BACKGROUND_URL];
+}
+
 export function getDefaultHomeHero(): EditableHomeHero {
   return {
     badge: hero.badge,
@@ -78,6 +115,7 @@ export function getDefaultHomeHero(): EditableHomeHero {
     secondaryCtaLabel: hero.secondaryCta.label,
     secondaryCtaHref: hero.secondaryCta.href,
     backgroundImageUrl: DEFAULT_HERO_BACKGROUND_URL,
+    heroImages: [],
   };
 }
 
@@ -141,6 +179,7 @@ function parseHeroFromPageContent(
       defaults.secondaryCtaHref,
     ),
     backgroundImageUrl: asString(row.imageUrl, defaults.backgroundImageUrl),
+    heroImages: normalizeHeroImageSlots(asStringArray(metadata.heroImages)),
   };
 }
 
@@ -196,7 +235,10 @@ export async function getPublicHomepageContent(): Promise<PublicHomepageContent>
     const content = await getEditableHomepageContent();
 
     return {
-      hero: content.hero,
+      hero: {
+        ...content.hero,
+        backgroundImages: resolvePublicHeroBackgroundImages(content.hero),
+      },
       ctaBanner: {
         ...content.ctaBanner,
         submitHref: ctaBanner.submitHref,
@@ -208,7 +250,10 @@ export async function getPublicHomepageContent(): Promise<PublicHomepageContent>
     const defaults = getDefaultHomepageContent();
 
     return {
-      hero: defaults.hero,
+      hero: {
+        ...defaults.hero,
+        backgroundImages: resolvePublicHeroBackgroundImages(defaults.hero),
+      },
       ctaBanner: {
         ...defaults.ctaBanner,
         submitHref: ctaBanner.submitHref,
@@ -236,6 +281,7 @@ export async function saveEditableHomepageContent(
           primaryCtaHref: input.hero.primaryCtaHref.trim(),
           secondaryCtaLabel: input.hero.secondaryCtaLabel.trim(),
           secondaryCtaHref: input.hero.secondaryCtaHref.trim(),
+          heroImages: input.hero.heroImages.map((url) => url.trim()).filter(Boolean),
         },
       },
       create: {
@@ -250,6 +296,7 @@ export async function saveEditableHomepageContent(
           primaryCtaHref: input.hero.primaryCtaHref.trim(),
           secondaryCtaLabel: input.hero.secondaryCtaLabel.trim(),
           secondaryCtaHref: input.hero.secondaryCtaHref.trim(),
+          heroImages: input.hero.heroImages.map((url) => url.trim()).filter(Boolean),
         },
       },
     }),
@@ -294,6 +341,9 @@ export function parseHomepageFormData(formData: FormData): EditableHomepageConte
       secondaryCtaLabel: read("hero_secondaryCtaLabel"),
       secondaryCtaHref: read("hero_secondaryCtaHref"),
       backgroundImageUrl: read("hero_backgroundImageUrl"),
+      heroImages: Array.from({ length: HERO_BACKGROUND_IMAGE_SLOTS }, (_, index) =>
+        read(`hero_image${index + 1}`),
+      ),
     },
     ctaBanner: {
       eyebrow: read("cta_eyebrow"),

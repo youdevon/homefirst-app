@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import SiteSettingsForm from "@/components/admin/SiteSettingsForm";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 import { getEditableSiteSettings } from "@/lib/site-settings-data";
@@ -26,10 +27,11 @@ export default async function AdminSiteSettingsPage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Configuration</p>
+          <p className="admin-eyebrow">Global Settings</p>
           <h1>Site Settings</h1>
           <p className="admin-lead">
-            Edit core contact and branding details stored in the database.
+            Manage global branding and contact details used in the public header,
+            footer, and browser tab icon.
           </p>
         </div>
         <Link href="/admin/dashboard" className="admin-back-link">
@@ -37,10 +39,20 @@ export default async function AdminSiteSettingsPage({
         </Link>
       </div>
 
-      <div className="admin-note">
-        Public pages still use content files for now. Database-powered rendering
-        will be connected in a later phase.
-      </div>
+      <AdminScopeNotice
+        manages={[
+          "Site name and ministry/tagline",
+          "Logo and favicon",
+          "Phone, email, and office hours",
+          "Social media links in the header",
+          "Public website theme preset",
+          "Footer copyright text",
+        ]}
+        doesNotManage={[
+          "Homepage, About, Contact, and other page body content",
+          "Leader profiles, housing schemes, and news articles",
+        ]}
+      />
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

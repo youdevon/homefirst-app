@@ -1003,3 +1003,167 @@
     padding: 0;
   }
 }
+
+.admin-nav {
+  background: #fff;
+  border-bottom: 1px solid var(--admin-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.admin-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.65rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow-x: auto;
+}
+
+.admin-nav-dashboard {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-gov-deep);
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: var(--admin-bg-alt);
+}
+
+.admin-nav-dashboard.active,
+.admin-nav-link.active {
+  background: rgba(200, 132, 26, 0.14);
+  color: var(--admin-gov-deep);
+}
+
+.admin-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.admin-nav-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admin-text-muted);
+  padding-right: 0.35rem;
+}
+
+.admin-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-nav-link {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--admin-text-body);
+  padding: 0.42rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.admin-nav-link:hover {
+  background: var(--admin-bg-alt);
+}
+
+.admin-dashboard-group {
+  margin-top: 2rem;
+}
+
+.admin-dashboard-group-header {
+  margin-bottom: 1rem;
+}
+
+.admin-dashboard-group-header h2 {
+  font-size: 1.25rem;
+  color: var(--admin-gov-deep);
+  margin-bottom: 0.35rem;
+}
+
+.admin-dashboard-group-header p {
+  color: var(--admin-text-muted);
+  max-width: 44rem;
+  line-height: 1.65;
+}
+
+.admin-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+  color: var(--admin-gov-deep);
+}
+
+.admin-scope-notice {
+  background: #fff;
+  border: 1px solid var(--admin-border);
+  border-left: 4px solid var(--admin-amber);
+  border-radius: var(--admin-radius);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.admin-scope-notice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.admin-scope-notice-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-gov-deep);
+  margin-bottom: 0.55rem;
+}
+
+.admin-scope-list {
+  list-style: disc;
+  padding-left: 1.1rem;
+  color: var(--admin-text-body);
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+
+.admin-scope-list-muted {
+  color: var(--admin-text-muted);
+}
+
+.admin-scope-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.95rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.admin-scope-link {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--admin-gov-mid);
+}
+
+.admin-scope-link:hover {
+  color: var(--admin-amber);
+}
+
+@media (max-width: 900px) {
+  .admin-nav-inner {
+    padding: 0.55rem 1rem;
+  }
+
+  .admin-nav-group-label {
+    display: none;
+  }
+}

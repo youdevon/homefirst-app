@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { mediaPage } from "@/content/news";
 import MediaCategoryFilter from "@/components/MediaCategoryFilter";
+import { getPublicMediaPageContent } from "@/lib/media-page-content-data";
 import { getPublicNewsArticles } from "@/lib/news-data";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,10 @@ type MediaPageProps = {
 export default async function MediaPage({ searchParams }: MediaPageProps) {
   const params = searchParams ? await searchParams : {};
   const activeCategory = params.category?.trim() ?? "";
-  const articles = await getPublicNewsArticles(activeCategory || undefined);
+  const [pageContent, articles] = await Promise.all([
+    getPublicMediaPageContent(),
+    getPublicNewsArticles(activeCategory || undefined),
+  ]);
   const [featured, ...rest] = articles;
 
   return (
@@ -25,21 +28,30 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
       <section
         className="page-hero media-page-hero"
         style={{
-          backgroundImage: `linear-gradient(to top, rgba(10,26,24,.92), rgba(16,38,36,.45)), url("${mediaPage.heroBackground}")`,
+          backgroundImage: `linear-gradient(to top, rgba(10,26,24,.92), rgba(16,38,36,.45)), url("${pageContent.backgroundImageUrl}")`,
         }}
       >
         <div className="page-hero-overlay"></div>
         <div className="wrap page-hero-content">
-          <span className="eyebrow">{mediaPage.eyebrow}</span>
+          <span className="eyebrow">{pageContent.eyebrow}</span>
           <h1 className="page-title">
-            {mediaPage.title} <em>{mediaPage.titleEmphasis}</em>
+            {pageContent.title} <em>{pageContent.highlightedTitle}</em>
           </h1>
-          <p>{mediaPage.description}</p>
+          <p>{pageContent.description}</p>
         </div>
       </section>
 
       <section className="sec media-page-section">
         <div className="wrap">
+          <div className="center-head media-page-section-head">
+            <span className="eyebrow">{pageContent.sectionEyebrow}</span>
+            <h2 className="sec-title">
+              {pageContent.sectionTitle}{" "}
+              <em>{pageContent.sectionHighlightedTitle}</em>
+            </h2>
+            <p className="sec-lead">{pageContent.sectionLead}</p>
+          </div>
+
           <MediaCategoryFilter activeCategory={activeCategory} />
 
           {featured ? (

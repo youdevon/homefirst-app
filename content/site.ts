@@ -30,6 +30,22 @@ export const navbarCta = {
   mobileLabel: "Start Housing Application →",
 };
 
+export type SocialNetwork = "facebook" | "instagram" | "youtube" | "linkedin";
+
+export type SocialLink = {
+  network: SocialNetwork;
+  label: string;
+  href: string;
+};
+
+/** Placeholder URLs until social links are managed in Site Settings. */
+export const defaultSocialLinks: SocialLink[] = [
+  { network: "facebook", label: "Facebook", href: "#" },
+  { network: "instagram", label: "Instagram", href: "#" },
+  { network: "youtube", label: "YouTube", href: "#" },
+  { network: "linkedin", label: "LinkedIn", href: "#" },
+];
+
 export const footerQuickLinks = [
   { label: "About Us", href: "/about" },
   { label: "Housing Schemes", href: "/schemes" },

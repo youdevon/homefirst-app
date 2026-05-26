@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminBrandMark from "@/components/admin/AdminBrandMark";
+import AdminNav from "@/components/admin/AdminNav";
 import { getAdminSubtitle, type AdminBranding } from "@/lib/admin-branding";
 import { formatAdminRole } from "@/lib/auth/roles";
 import type { AdminSession } from "@/lib/auth/session";
@@ -7,12 +8,14 @@ import type { AdminSession } from "@/lib/auth/session";
 type AdminShellProps = {
   session: AdminSession;
   branding: AdminBranding;
+  isAdmin: boolean;
   children: React.ReactNode;
 };
 
 export default function AdminShell({
   session,
   branding,
+  isAdmin,
   children,
 }: AdminShellProps) {
   return (
@@ -47,6 +50,8 @@ export default function AdminShell({
           </div>
         </div>
       </header>
+
+      <AdminNav isAdmin={isAdmin} />
 
       <main className="admin-main">{children}</main>
     </div>

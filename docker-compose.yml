@@ -10,10 +10,11 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-homefirst-dev-auth-secret-change-in-production}
       APP_URL: http://10.1.1.15:3002
       NEXT_PUBLIC_APP_URL: http://10.1.1.15:3002
-    depends_on:
-      - postgres
+      TZ: America/Port_of_Spain
     volumes:
       - ./public/uploads:/app/public/uploads
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:16-alpine
@@ -25,6 +26,7 @@ services:
       POSTGRES_USER: homefirst
       POSTGRES_PASSWORD: homefirst
       POSTGRES_DB: homefirst
+      TZ: America/Port_of_Spain
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

@@ -1,4 +1,9 @@
-import { site } from "@/content/site";
+import { site, type SocialLink } from "@/content/site";
+import {
+  DEFAULT_THEME_PRESET,
+  normalizeThemePreset,
+  type ThemePreset,
+} from "@/lib/theme-presets";
 import { prisma } from "@/lib/prisma";
 
 export type EditableSiteSettings = {
@@ -10,6 +15,11 @@ export type EditableSiteSettings = {
   copyright: string;
   logoUrl: string;
   faviconUrl: string;
+  socialFacebook: string;
+  socialInstagram: string;
+  socialYoutube: string;
+  socialLinkedin: string;
+  themePreset: ThemePreset;
 };
 
 export type PublicSiteSettings = {
@@ -29,6 +39,8 @@ export type PublicSiteSettings = {
   officeHours: string;
   copyright: string;
   footerDescription: string;
+  socialLinks: SocialLink[];
+  themePreset: ThemePreset;
 };
 
 export const SITE_SETTING_KEYS = {
@@ -40,6 +52,11 @@ export const SITE_SETTING_KEYS = {
   copyright: "site.copyright",
   logoUrl: "site.logoUrl",
   faviconUrl: "site.faviconUrl",
+  socialFacebook: "site.social.facebook",
+  socialInstagram: "site.social.instagram",
+  socialYoutube: "site.social.youtube",
+  socialLinkedin: "site.social.linkedin",
+  themePreset: "site.themePreset",
 } as const;
 
 const LEGACY_SETTING_KEYS = {
@@ -57,7 +74,39 @@ export function getDefaultSiteSettings(): EditableSiteSettings {
     copyright: site.copyright,
     logoUrl: "",
     faviconUrl: "",
+    socialFacebook: "",
+    socialInstagram: "",
+    socialYoutube: "",
+    socialLinkedin: "",
+    themePreset: DEFAULT_THEME_PRESET,
   };
+}
+
+function buildSocialLinks(settings: EditableSiteSettings): SocialLink[] {
+  const entries: SocialLink[] = [
+    {
+      network: "facebook",
+      label: "Facebook",
+      href: settings.socialFacebook.trim() || "#",
+    },
+    {
+      network: "instagram",
+      label: "Instagram",
+      href: settings.socialInstagram.trim() || "#",
+    },
+    {
+      network: "youtube",
+      label: "YouTube",
+      href: settings.socialYoutube.trim() || "#",
+    },
+    {
+      network: "linkedin",
+      label: "LinkedIn",
+      href: settings.socialLinkedin.trim() || "#",
+    },
+  ];
+
+  return entries.filter((entry) => entry.href && entry.href !== "#");
 }
 
 function toPhoneHref(phone: string): string {
@@ -89,6 +138,8 @@ export function toPublicSiteSettings(
     officeHours: settings.officeHours,
     copyright: settings.copyright,
     footerDescription: site.footerDescription,
+    socialLinks: buildSocialLinks(settings),
+    themePreset: normalizeThemePreset(settings.themePreset),
   };
 }
 
@@ -130,6 +181,17 @@ export async function getEditableSiteSettings(): Promise<EditableSiteSettings> {
     copyright: values.get(SITE_SETTING_KEYS.copyright) ?? defaults.copyright,
     logoUrl: values.get(SITE_SETTING_KEYS.logoUrl) ?? defaults.logoUrl,
     faviconUrl: values.get(SITE_SETTING_KEYS.faviconUrl) ?? defaults.faviconUrl,
+    socialFacebook:
+      values.get(SITE_SETTING_KEYS.socialFacebook) ?? defaults.socialFacebook,
+    socialInstagram:
+      values.get(SITE_SETTING_KEYS.socialInstagram) ?? defaults.socialInstagram,
+    socialYoutube:
+      values.get(SITE_SETTING_KEYS.socialYoutube) ?? defaults.socialYoutube,
+    socialLinkedin:
+      values.get(SITE_SETTING_KEYS.socialLinkedin) ?? defaults.socialLinkedin,
+    themePreset: normalizeThemePreset(
+      values.get(SITE_SETTING_KEYS.themePreset) ?? defaults.themePreset,
+    ),
   };
 }
 
@@ -145,6 +207,11 @@ export async function saveEditableSiteSettings(
     { key: SITE_SETTING_KEYS.copyright, value: input.copyright.trim() },
     { key: SITE_SETTING_KEYS.logoUrl, value: input.logoUrl.trim() },
     { key: SITE_SETTING_KEYS.faviconUrl, value: input.faviconUrl.trim() },
+    { key: SITE_SETTING_KEYS.socialFacebook, value: input.socialFacebook.trim() },
+    { key: SITE_SETTING_KEYS.socialInstagram, value: input.socialInstagram.trim() },
+    { key: SITE_SETTING_KEYS.socialYoutube, value: input.socialYoutube.trim() },
+    { key: SITE_SETTING_KEYS.socialLinkedin, value: input.socialLinkedin.trim() },
+    { key: SITE_SETTING_KEYS.themePreset, value: input.themePreset },
   ];
 
   await prisma.$transaction(

@@ -38,6 +38,9 @@ export const AUDIT_ACTIONS = {
   HOMEPAGE_VIDEO_ACTIVATED: "Homepage Video Activated",
   HOMEPAGE_VIDEO_DEACTIVATED: "Homepage Video Deactivated",
   HOMEPAGE_VIDEO_FEATURED: "Homepage Video Featured",
+  SCHEMES_PAGE_SAVED: "Schemes Page Saved",
+  MEDIA_PAGE_SAVED: "Media Page Saved",
+  ELIGIBILITY_PAGE_SAVED: "Eligibility Page Saved",
 } as const;
 
 export const AUDIT_ENTITY_TYPES = {
@@ -52,6 +55,9 @@ export const AUDIT_ENTITY_TYPES = {
   NEWS: "News",
   MEDIA: "Media",
   HOMEPAGE_VIDEO: "Homepage Video",
+  SCHEMES_PAGE: "Schemes Page",
+  MEDIA_PAGE: "Media Page",
+  ELIGIBILITY_PAGE: "Eligibility Page",
 } as const;
 
 type AuditActorInput =

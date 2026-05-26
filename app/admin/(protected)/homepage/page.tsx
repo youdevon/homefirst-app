@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import HomepageContentForm from "@/components/admin/HomepageContentForm";
 import HomepageVideosSectionForm from "@/components/admin/HomepageVideosSectionForm";
 import HomepageVideosTable from "@/components/admin/HomepageVideosTable";
@@ -42,17 +43,34 @@ export default async function AdminHomepagePage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Homepage</p>
-          <h1>Homepage Content</h1>
+          <p className="admin-eyebrow">Page Content</p>
+          <h1>Home Page</h1>
           <p className="admin-lead">
-            Edit the homepage hero, CTA banner, and Real Communities video
-            section stored in the database.
+            Edit homepage body sections including the hero, slideshow images,
+            call-to-action banner, and Real Communities video area.
           </p>
         </div>
         <Link href="/admin/dashboard" className="admin-back-link">
           ← Back to dashboard
         </Link>
       </div>
+
+      <AdminScopeNotice
+        manages={[
+          "Homepage hero text and buttons",
+          "Hero background slideshow images",
+          "Homepage CTA banner",
+          "Real Communities video section heading and videos",
+        ]}
+        doesNotManage={[
+          "Site logo, header, footer, and global contact details",
+          "Housing scheme cards, news articles, and leader profiles",
+        ]}
+        relatedLinks={[
+          { label: "Manage housing schemes", href: "/admin/schemes" },
+          { label: "Manage news and notices", href: "/admin/news" },
+        ]}
+      />
 
       {showHeroSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

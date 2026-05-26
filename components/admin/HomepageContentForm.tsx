@@ -1,5 +1,8 @@
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
-import type { EditableHomepageContent } from "@/lib/homepage-content-data";
+import {
+  HERO_BACKGROUND_IMAGE_SLOTS,
+  type EditableHomepageContent,
+} from "@/lib/homepage-content-data";
 import type { MediaSelectorOption } from "@/lib/media-data";
 
 type HomepageContentFormProps = {
@@ -100,7 +103,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field admin-field-full">
-            <span>Background image URL</span>
+            <span>Background image URL (fallback)</span>
             <AdminMediaUrlField
               name="hero_backgroundImageUrl"
               defaultValue={content.hero.backgroundImageUrl}
@@ -109,6 +112,26 @@ export default function HomepageContentForm({
               placeholder="/uploads/images/hero-background.jpg"
             />
           </label>
+
+          <div className="admin-field admin-field-full">
+            <span>Hero slideshow images (optional)</span>
+            <p className="admin-form-help">
+              Add up to five images for the homepage hero slideshow. If none are
+              saved, the fallback background image above is used.
+            </p>
+          </div>
+
+          {Array.from({ length: HERO_BACKGROUND_IMAGE_SLOTS }, (_, index) => (
+            <label className="admin-field admin-field-full" key={index}>
+              <span>{`Hero background image ${index + 1}`}</span>
+              <AdminMediaUrlField
+                name={`hero_image${index + 1}`}
+                defaultValue={content.hero.heroImages[index] ?? ""}
+                options={imageFiles}
+                placeholder={`/uploads/images/hero-${index + 1}.jpg`}
+              />
+            </label>
+          ))}
         </div>
       </div>
 

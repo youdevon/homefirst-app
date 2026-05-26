@@ -12,10 +12,10 @@ export default async function SiteLayout({
   const settings = await getPublicSiteSettings();
 
   return (
-    <>
+    <div className="site-theme-root" data-theme-preset={settings.themePreset}>
       <Navbar settings={settings} />
       {children}
       <Footer settings={settings} />
-    </>
+    </div>
   );
 }

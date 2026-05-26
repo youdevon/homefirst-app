@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  schemeCardCtaLabels,
-  schemesChooseSection,
-  schemesPageCta,
-  schemesPageHero,
-} from "@/content/schemes";
+import { schemeCardCtaLabels } from "@/content/schemes";
+import { getPublicSchemesPageContent } from "@/lib/schemes-page-content-data";
 import { getPublicSchemes, getSchemeCtaHref } from "@/lib/schemes-data";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +15,12 @@ function getSchemeCtaLabel(open: boolean): string {
 }
 
 export default async function SchemesPage() {
-  const schemes = await getPublicSchemes();
-  const heroBackground = schemesPageHero.backgroundImageUrl
-    ? `linear-gradient(to top, rgba(10,26,24,.92), rgba(16,38,36,.45)), url("${schemesPageHero.backgroundImageUrl}")`
+  const [pageContent, schemes] = await Promise.all([
+    getPublicSchemesPageContent(),
+    getPublicSchemes(),
+  ]);
+  const heroBackground = pageContent.hero.backgroundImageUrl
+    ? `linear-gradient(to top, rgba(10,26,24,.92), rgba(16,38,36,.45)), url("${pageContent.hero.backgroundImageUrl}")`
     : undefined;
 
   return (
@@ -41,12 +40,12 @@ export default async function SchemesPage() {
       >
         <div className="page-hero-overlay"></div>
         <div className="wrap page-hero-content">
-          <span className="eyebrow">{schemesPageHero.eyebrow}</span>
+          <span className="eyebrow">{pageContent.hero.eyebrow}</span>
           <h1 className="page-title">
-            {schemesPageHero.title}{" "}
-            <em>{schemesPageHero.highlightedTitle}</em>
+            {pageContent.hero.title}{" "}
+            <em>{pageContent.hero.highlightedTitle}</em>
           </h1>
-          <p>{schemesPageHero.description}</p>
+          <p>{pageContent.hero.description}</p>
         </div>
       </section>
 
@@ -54,13 +53,13 @@ export default async function SchemesPage() {
         <div className="wrap">
           <div className="sch-head">
             <div>
-              <span className="eyebrow">Programmes</span>
+              <span className="eyebrow">{pageContent.listIntro.eyebrow}</span>
               <h2 className="sec-title">
-                Current <em>Schemes</em>
+                {pageContent.listIntro.title}{" "}
+                <em>{pageContent.listIntro.highlightedTitle}</em>
               </h2>
               <p className="sec-lead schemes-page-lead">
-                All active HomeFirst housing programmes currently open to
-                applicants and registrants.
+                {pageContent.listIntro.lead}
               </p>
             </div>
           </div>
@@ -99,18 +98,18 @@ export default async function SchemesPage() {
       <section className="sec schemes-choose-section">
         <div className="wrap">
           <div className="center-head">
-            <span className="eyebrow">{schemesChooseSection.eyebrow}</span>
+            <span className="eyebrow">{pageContent.chooseSection.eyebrow}</span>
             <h2 className="sec-title">
-              {schemesChooseSection.title}{" "}
-              <em>{schemesChooseSection.titleEmphasis}</em>
+              {pageContent.chooseSection.title}{" "}
+              <em>{pageContent.chooseSection.highlightedTitle}</em>
             </h2>
             <p className="sec-lead schemes-choose-lead">
-              {schemesChooseSection.lead}
+              {pageContent.chooseSection.lead}
             </p>
           </div>
 
           <div className="schemes-choose-grid">
-            {schemesChooseSection.items.map((item, index) => (
+            {pageContent.chooseSection.items.map((item, index) => (
               <article className="schemes-choose-card" key={item.title}>
                 <div className="schemes-choose-num">
                   {String(index + 1).padStart(2, "0")}
@@ -128,18 +127,21 @@ export default async function SchemesPage() {
           <div>
             <span className="eyebrow schemes-page-cta-eyebrow">Next Steps</span>
             <h2 className="sec-title schemes-page-cta-title">
-              {schemesPageCta.title}{" "}
-              <em>{schemesPageCta.highlightedTitle}</em>
+              {pageContent.cta.title}{" "}
+              <em>{pageContent.cta.highlightedTitle}</em>
             </h2>
-            <p className="schemes-page-cta-text">{schemesPageCta.description}</p>
+            <p className="schemes-page-cta-text">{pageContent.cta.description}</p>
           </div>
 
           <div className="schemes-page-cta-actions">
-            <Link href={schemesPageCta.primaryHref} className="btn-pri">
-              {schemesPageCta.primaryLabel}
+            <Link href={pageContent.cta.primaryHref} className="btn-pri">
+              {pageContent.cta.primaryLabel}
             </Link>
-            <Link href={schemesPageCta.secondaryHref} className="btn-ghost schemes-page-cta-secondary">
-              {schemesPageCta.secondaryLabel}
+            <Link
+              href={pageContent.cta.secondaryHref}
+              className="btn-ghost schemes-page-cta-secondary"
+            >
+              {pageContent.cta.secondaryLabel}
             </Link>
           </div>
         </div>

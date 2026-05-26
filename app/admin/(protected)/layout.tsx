@@ -1,5 +1,6 @@
 import AdminShell from "@/components/admin/AdminShell";
 import { getAdminBranding } from "@/lib/admin-branding";
+import { canManageUsers } from "@/lib/auth/roles";
 import { requireAdminSession } from "@/lib/auth/require-admin-session";
 
 export default async function ProtectedAdminLayout({
@@ -13,7 +14,11 @@ export default async function ProtectedAdminLayout({
   ]);
 
   return (
-    <AdminShell session={session} branding={branding}>
+    <AdminShell
+      session={session}
+      branding={branding}
+      isAdmin={canManageUsers(session)}
+    >
       {children}
     </AdminShell>
   );

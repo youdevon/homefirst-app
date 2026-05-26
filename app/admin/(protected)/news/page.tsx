@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import NewsTable from "@/components/admin/NewsTable";
 import { getAllNewsItemsForAdmin } from "@/lib/news-data";
 
@@ -22,10 +23,11 @@ export default async function AdminNewsPage({
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Homepage</p>
+          <p className="admin-eyebrow">Shared Content</p>
           <h1>News & Notices</h1>
           <p className="admin-lead">
-            Manage news cards shown on the public homepage.
+            Manage news and notice articles. Updates here appear on the
+            homepage, /media page, and individual article pages.
           </p>
         </div>
         <div className="admin-header-actions-inline">
@@ -37,6 +39,16 @@ export default async function AdminNewsPage({
           </Link>
         </div>
       </div>
+
+      <AdminScopeNotice
+        manages={[
+          "Article titles, summaries, images, categories, and publish status",
+        ]}
+        doesNotManage={["Media page hero and section wording"]}
+        relatedLinks={[
+          { label: "Edit Media page sections", href: "/admin/media-page" },
+        ]}
+      />
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">
