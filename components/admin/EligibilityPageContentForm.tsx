@@ -1,3 +1,4 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableEligibilityPageContent } from "@/lib/eligibility-page-content-data";
 import type { MediaSelectorOption } from "@/lib/media-data";
@@ -15,11 +16,10 @@ export default function EligibilityPageContentForm({
     <form
       method="post"
       action="/api/admin/eligibility"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Page Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Page Hero" defaultOpen>
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input type="text" name="hero_eyebrow" defaultValue={content.hero.eyebrow} required />
@@ -46,11 +46,10 @@ export default function EligibilityPageContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Who Qualifies</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Who Qualifies" defaultOpen={false}>
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Title</span>
             <input type="text" name="who_title" defaultValue={content.whoQualifies.title} required />
@@ -64,11 +63,10 @@ export default function EligibilityPageContentForm({
             <textarea name="who_description" defaultValue={content.whoQualifies.description} required />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Requirements Checklist</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Requirements Checklist" defaultOpen={false}>
+        <div className="admin-form-grid-2">
           <label className="admin-field admin-field-full">
             <span>Section title</span>
             <input type="text" name="requirements_title" defaultValue={content.requirements.title} required />
@@ -85,11 +83,10 @@ export default function EligibilityPageContentForm({
             </label>
           ))}
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Required Documents</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Required Documents" defaultOpen={false}>
+        <div className="admin-form-grid-2">
           <label className="admin-field admin-field-full">
             <span>Section title</span>
             <input type="text" name="documents_title" defaultValue={content.documents.title} required />
@@ -106,11 +103,10 @@ export default function EligibilityPageContentForm({
             </label>
           ))}
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Call to Action</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Call to Action" defaultOpen={false}>
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Title</span>
             <input type="text" name="cta_title" defaultValue={content.cta.title} required />
@@ -140,7 +136,7 @@ export default function EligibilityPageContentForm({
             <input type="text" name="cta_secondaryHref" defaultValue={content.cta.secondaryHref} required />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
       <div className="admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">

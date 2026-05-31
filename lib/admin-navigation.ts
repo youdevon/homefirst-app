@@ -24,7 +24,7 @@ const globalSettings: AdminNavGroup = {
       href: "/admin/site-settings",
       icon: "⚙",
       description:
-        "Site name, logo, favicon, phone, email, office hours, social links, and footer copyright.",
+        "Edit logo, contact details, theme, footer, and AI assistant visibility.",
     },
   ],
 };
@@ -40,7 +40,7 @@ const pageContent: AdminNavGroup = {
       href: "/admin/homepage",
       icon: "🏠",
       description:
-        "Homepage hero, slideshow images, quick actions area, video section, and homepage call-to-action.",
+        "Homepage hero media, section headings, calls to action, and Real Communities videos.",
     },
     {
       label: "About Us Page",
@@ -57,18 +57,18 @@ const pageContent: AdminNavGroup = {
         "Public /schemes page hero, intro text, supporting sections, and page call-to-action.",
     },
     {
-      label: "Contact Page",
-      href: "/admin/contact",
-      icon: "📞",
-      description:
-        "Contact page hero, contact details section, cards, and instructions.",
-    },
-    {
       label: "Media Page",
       href: "/admin/media-page",
       icon: "📰",
       description:
         "Public /media page hero, intro text, and section wording.",
+    },
+    {
+      label: "Contact Page",
+      href: "/admin/contact",
+      icon: "📞",
+      description:
+        "Contact page hero, contact details section, cards, and instructions.",
     },
     {
       label: "Eligibility Page",
@@ -87,11 +87,11 @@ const sharedContent: AdminNavGroup = {
     "Manage records used in more than one place. Changes here update cards and listings everywhere they appear.",
   items: [
     {
-      label: "Leaders",
+      label: "Leaders & Board",
       href: "/admin/leaders",
       icon: "👥",
       description:
-        "Leader profiles shown on the About page and anywhere else leaders are listed.",
+        "Leadership team and Board of Directors profiles shown on the About page.",
     },
     {
       label: "Housing Schemes",

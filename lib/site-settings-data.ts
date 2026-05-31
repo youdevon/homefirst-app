@@ -1,5 +1,11 @@
 import { site, type SocialLink } from "@/content/site";
 import {
+  DEFAULT_LOGO_DISPLAY_MODE,
+  normalizeLogoDisplayMode,
+  resolvePublicLogoDisplayMode,
+  type LogoDisplayMode,
+} from "@/lib/logo-display-mode";
+import {
   DEFAULT_THEME_PRESET,
   normalizeThemePreset,
   type ThemePreset,
@@ -15,11 +21,14 @@ export type EditableSiteSettings = {
   copyright: string;
   logoUrl: string;
   faviconUrl: string;
+  logoDisplayMode: LogoDisplayMode;
   socialFacebook: string;
   socialInstagram: string;
   socialYoutube: string;
   socialLinkedin: string;
   themePreset: ThemePreset;
+  footerTagline: string;
+  aiAssistantEnabled: boolean;
 };
 
 export type PublicSiteSettings = {
@@ -28,6 +37,7 @@ export type PublicSiteSettings = {
   crest: string;
   logoUrl: string | null;
   faviconUrl: string | null;
+  logoDisplayMode: LogoDisplayMode;
   phone: {
     display: string;
     href: string;
@@ -38,9 +48,10 @@ export type PublicSiteSettings = {
   };
   officeHours: string;
   copyright: string;
-  footerDescription: string;
+  footerTagline: string;
   socialLinks: SocialLink[];
   themePreset: ThemePreset;
+  aiAssistantEnabled: boolean;
 };
 
 export const SITE_SETTING_KEYS = {
@@ -50,18 +61,22 @@ export const SITE_SETTING_KEYS = {
   email: "site.email",
   officeHours: "site.officeHours",
   copyright: "site.copyright",
+  footerTagline: "site.footerTagline",
   logoUrl: "site.logoUrl",
   faviconUrl: "site.faviconUrl",
+  logoDisplayMode: "site.logoDisplayMode",
   socialFacebook: "site.social.facebook",
   socialInstagram: "site.social.instagram",
   socialYoutube: "site.social.youtube",
   socialLinkedin: "site.social.linkedin",
   themePreset: "site.themePreset",
+  aiAssistantEnabled: "site.aiAssistantEnabled",
 } as const;
 
 const LEGACY_SETTING_KEYS = {
   phone: "site.phone.display",
   email: "site.email.display",
+  footerTagline: "site.footerDescription",
 } as const;
 
 export function getDefaultSiteSettings(): EditableSiteSettings {
@@ -74,11 +89,14 @@ export function getDefaultSiteSettings(): EditableSiteSettings {
     copyright: site.copyright,
     logoUrl: "",
     faviconUrl: "",
+    logoDisplayMode: DEFAULT_LOGO_DISPLAY_MODE,
     socialFacebook: "",
     socialInstagram: "",
     socialYoutube: "",
     socialLinkedin: "",
     themePreset: DEFAULT_THEME_PRESET,
+    footerTagline: site.footerTagline,
+    aiAssistantEnabled: true,
   };
 }
 
@@ -121,12 +139,18 @@ function toEmailHref(email: string): string {
 export function toPublicSiteSettings(
   settings: EditableSiteSettings,
 ): PublicSiteSettings {
+  const logoUrl = settings.logoUrl.trim() || null;
+
   return {
     name: settings.name,
     tagline: settings.tagline,
     crest: site.crest,
-    logoUrl: settings.logoUrl.trim() || null,
+    logoUrl,
     faviconUrl: settings.faviconUrl.trim() || null,
+    logoDisplayMode: resolvePublicLogoDisplayMode(
+      normalizeLogoDisplayMode(settings.logoDisplayMode),
+      logoUrl,
+    ),
     phone: {
       display: settings.phone,
       href: toPhoneHref(settings.phone),
@@ -137,9 +161,10 @@ export function toPublicSiteSettings(
     },
     officeHours: settings.officeHours,
     copyright: settings.copyright,
-    footerDescription: site.footerDescription,
+    footerTagline: settings.footerTagline.trim() || site.footerTagline,
     socialLinks: buildSocialLinks(settings),
     themePreset: normalizeThemePreset(settings.themePreset),
+    aiAssistantEnabled: settings.aiAssistantEnabled,
   };
 }
 
@@ -181,6 +206,9 @@ export async function getEditableSiteSettings(): Promise<EditableSiteSettings> {
     copyright: values.get(SITE_SETTING_KEYS.copyright) ?? defaults.copyright,
     logoUrl: values.get(SITE_SETTING_KEYS.logoUrl) ?? defaults.logoUrl,
     faviconUrl: values.get(SITE_SETTING_KEYS.faviconUrl) ?? defaults.faviconUrl,
+    logoDisplayMode: normalizeLogoDisplayMode(
+      values.get(SITE_SETTING_KEYS.logoDisplayMode) ?? defaults.logoDisplayMode,
+    ),
     socialFacebook:
       values.get(SITE_SETTING_KEYS.socialFacebook) ?? defaults.socialFacebook,
     socialInstagram:
@@ -192,7 +220,23 @@ export async function getEditableSiteSettings(): Promise<EditableSiteSettings> {
     themePreset: normalizeThemePreset(
       values.get(SITE_SETTING_KEYS.themePreset) ?? defaults.themePreset,
     ),
+    footerTagline:
+      values.get(SITE_SETTING_KEYS.footerTagline) ??
+      values.get(LEGACY_SETTING_KEYS.footerTagline) ??
+      defaults.footerTagline,
+    aiAssistantEnabled: parseAiAssistantEnabled(
+      values.get(SITE_SETTING_KEYS.aiAssistantEnabled),
+      defaults.aiAssistantEnabled,
+    ),
   };
+}
+
+function parseAiAssistantEnabled(value: string | undefined, fallback: boolean): boolean {
+  if (value === undefined || value === "") {
+    return fallback;
+  }
+
+  return value === "true" || value === "1";
 }
 
 export async function saveEditableSiteSettings(
@@ -205,13 +249,19 @@ export async function saveEditableSiteSettings(
     { key: SITE_SETTING_KEYS.email, value: input.email.trim() },
     { key: SITE_SETTING_KEYS.officeHours, value: input.officeHours.trim() },
     { key: SITE_SETTING_KEYS.copyright, value: input.copyright.trim() },
+    { key: SITE_SETTING_KEYS.footerTagline, value: input.footerTagline.trim() },
     { key: SITE_SETTING_KEYS.logoUrl, value: input.logoUrl.trim() },
     { key: SITE_SETTING_KEYS.faviconUrl, value: input.faviconUrl.trim() },
+    { key: SITE_SETTING_KEYS.logoDisplayMode, value: input.logoDisplayMode },
     { key: SITE_SETTING_KEYS.socialFacebook, value: input.socialFacebook.trim() },
     { key: SITE_SETTING_KEYS.socialInstagram, value: input.socialInstagram.trim() },
     { key: SITE_SETTING_KEYS.socialYoutube, value: input.socialYoutube.trim() },
     { key: SITE_SETTING_KEYS.socialLinkedin, value: input.socialLinkedin.trim() },
     { key: SITE_SETTING_KEYS.themePreset, value: input.themePreset },
+    {
+      key: SITE_SETTING_KEYS.aiAssistantEnabled,
+      value: input.aiAssistantEnabled ? "true" : "false",
+    },
   ];
 
   await prisma.$transaction(

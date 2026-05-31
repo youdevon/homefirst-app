@@ -5,6 +5,14 @@ import {
 } from "@/content/schemes";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import {
+  SCHEMES_PAGE_SECTION_KEYS,
+  SCHEMES_PAGE_VISIBILITY_KEY,
+  getPageVisibility,
+  parsePartialVisibilityFromFormData,
+  savePartialPageVisibility,
+  type SchemesPageSectionVisibility,
+} from "@/lib/section-visibility";
 
 export const SCHEMES_PAGE_SECTION_KEY = "schemes.page";
 
@@ -52,6 +60,18 @@ export type EditableSchemesPageContent = {
   chooseSection: EditableSchemesChooseSection;
   cta: EditableSchemesPageCta;
 };
+
+export type SchemesPageContentFields = EditableSchemesPageContent;
+
+export type PublicSchemesPageContent = EditableSchemesPageContent & {
+  visibility: SchemesPageSectionVisibility;
+};
+
+export {
+  SCHEMES_PAGE_VISIBILITY_KEY,
+  SCHEMES_PAGE_SECTION_KEYS,
+  SCHEMES_PAGE_SECTION_LABELS,
+} from "@/lib/section-visibility";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -203,17 +223,31 @@ export async function getEditableSchemesPageContent(): Promise<EditableSchemesPa
   return parseSchemesPageContent(row, defaults);
 }
 
-export async function getPublicSchemesPageContent(): Promise<EditableSchemesPageContent> {
+export async function getPublicSchemesPageContent(): Promise<PublicSchemesPageContent> {
   try {
-    return await getEditableSchemesPageContent();
+    const [content, visibility] = await Promise.all([
+      getEditableSchemesPageContent(),
+      getPageVisibility(SCHEMES_PAGE_VISIBILITY_KEY, SCHEMES_PAGE_SECTION_KEYS),
+    ]);
+
+    return {
+      ...content,
+      visibility: visibility as SchemesPageSectionVisibility,
+    };
   } catch {
-    return getDefaultSchemesPageContent();
+    return {
+      ...getDefaultSchemesPageContent(),
+      visibility: Object.fromEntries(
+        SCHEMES_PAGE_SECTION_KEYS.map((key) => [key, true]),
+      ) as SchemesPageSectionVisibility,
+    };
   }
 }
 
 export async function saveEditableSchemesPageContent(
-  input: EditableSchemesPageContent,
-): Promise<void> {
+  input: SchemesPageContentFields,
+  visibilityPartial: Partial<SchemesPageSectionVisibility>,
+): Promise<SchemesPageSectionVisibility> {
   await prisma.pageContent.upsert({
     where: { sectionKey: SCHEMES_PAGE_SECTION_KEY },
     update: {
@@ -230,9 +264,24 @@ export async function saveEditableSchemesPageContent(
       metadata: input,
     },
   });
+
+  return savePartialPageVisibility(
+    SCHEMES_PAGE_VISIBILITY_KEY,
+    SCHEMES_PAGE_SECTION_KEYS,
+    visibilityPartial,
+  ) as Promise<SchemesPageSectionVisibility>;
 }
 
-export function parseSchemesPageFormData(formData: FormData): EditableSchemesPageContent {
+export function parseSchemesPageVisibilityFromFormData(
+  formData: FormData,
+): Partial<SchemesPageSectionVisibility> {
+  return parsePartialVisibilityFromFormData(
+    formData,
+    SCHEMES_PAGE_SECTION_KEYS,
+  ) as Partial<SchemesPageSectionVisibility>;
+}
+
+export function parseSchemesPageFormData(formData: FormData): SchemesPageContentFields {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
 
   return {
@@ -272,7 +321,7 @@ export function parseSchemesPageFormData(formData: FormData): EditableSchemesPag
 }
 
 export function isValidSchemesPageContent(
-  content: EditableSchemesPageContent,
+  content: SchemesPageContentFields,
 ): boolean {
   return (
     Boolean(content.hero.title) &&

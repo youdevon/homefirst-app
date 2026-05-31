@@ -1,0 +1,156 @@
+/* Admin production polish */
+
+.admin-root {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-root {
+    scroll-behavior: auto;
+  }
+}
+
+.admin-page {
+  width: 100%;
+  max-width: 100%;
+}
+
+.admin-main {
+  scroll-margin-top: 1rem;
+}
+
+.admin-panel {
+  overflow: hidden;
+}
+
+.admin-table-wrap {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.admin-save-bar {
+  backdrop-filter: blur(6px);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--admin-bg) 94%, transparent) 70%,
+    transparent
+  );
+}
+
+.admin-form-stack {
+  gap: 0.85rem;
+}
+
+.admin-scope-notice {
+  margin-bottom: 0.75rem;
+}
+
+.admin-alert {
+  margin-bottom: 0.75rem;
+}
+
+.admin-page-header {
+  margin-bottom: 0.85rem;
+}
+
+.admin-lead {
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.admin-field span:first-child {
+  font-size: 0.84rem;
+}
+
+.admin-form-help {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .admin-main {
+    padding: 1rem 0.85rem 2rem;
+  }
+
+  .admin-page-actions,
+  .admin-header-actions-inline {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-dashboard-stats {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-card:hover {
+    transform: none !important;
+  }
+}
+
+.admin-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.admin-section-toggle-icon {
+  color: var(--admin-gov-mid);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.admin-section-collapsed {
+  padding-bottom: 0.65rem;
+}
+
+.admin-section-card-body[hidden] {
+  display: none;
+}
+
+.admin-hero-media-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-hero-media-item {
+  border: 1px solid var(--admin-border-soft);
+  border-radius: var(--admin-radius-sm);
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--admin-surface) 92%, var(--admin-bg-alt) 8%);
+}
+
+.admin-hero-media-item-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+  color: var(--admin-gov-deep);
+}
+
+.admin-media-library-toolbar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-media-library-toolbar .admin-filter-tab {
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-media-thumb-video {
+  object-fit: cover;
+}
+
+.admin-filter-tab {
+  border: none;
+  background: var(--admin-surface);
+}

@@ -1,4 +1,5 @@
 import { site } from "@/content/site";
+import type { LogoDisplayMode } from "@/lib/logo-display-mode";
 import { getPublicSiteSettings } from "@/lib/site-settings-data";
 
 export type AdminBranding = {
@@ -7,6 +8,7 @@ export type AdminBranding = {
   tagline: string;
   logoUrl: string | null;
   crest: string;
+  logoDisplayMode: LogoDisplayMode;
 };
 
 function buildAdminBranding(input: {
@@ -14,6 +16,7 @@ function buildAdminBranding(input: {
   tagline: string;
   logoUrl: string | null;
   crest: string;
+  logoDisplayMode: LogoDisplayMode;
 }): AdminBranding {
   return {
     name: input.name,
@@ -21,6 +24,7 @@ function buildAdminBranding(input: {
     tagline: input.tagline,
     logoUrl: input.logoUrl,
     crest: input.crest,
+    logoDisplayMode: input.logoDisplayMode,
   };
 }
 
@@ -38,6 +42,7 @@ export async function getAdminBranding(): Promise<AdminBranding> {
       tagline: settings.tagline,
       logoUrl: settings.logoUrl,
       crest: settings.crest,
+      logoDisplayMode: settings.logoDisplayMode,
     });
   } catch {
     return buildAdminBranding({
@@ -45,6 +50,7 @@ export async function getAdminBranding(): Promise<AdminBranding> {
       tagline: site.tagline,
       logoUrl: null,
       crest: site.crest,
+      logoDisplayMode: "icon-text",
     });
   }
 }

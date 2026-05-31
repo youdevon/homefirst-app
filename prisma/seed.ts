@@ -21,7 +21,7 @@ const siteSettings = [
   { key: "site.email.href", value: site.email.href },
   { key: "site.officeHours", value: site.officeHours },
   { key: "site.copyright", value: site.copyright },
-  { key: "site.footerDescription", value: site.footerDescription },
+  { key: "site.footerTagline", value: site.footerTagline },
 ];
 
 const pageContentSections = [
@@ -135,6 +135,7 @@ async function main() {
         photoUrl: leader.image,
         displayOrder: index,
         active: true,
+        personType: "LEADER",
       },
       create: {
         id: `seed-leader-${index + 1}`,
@@ -144,6 +145,7 @@ async function main() {
         photoUrl: leader.image,
         displayOrder: index,
         active: true,
+        personType: "LEADER",
       },
     });
   }

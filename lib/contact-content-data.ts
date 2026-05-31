@@ -7,11 +7,20 @@ import {
 } from "@/content/contact";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import {
+  CONTACT_SECTION_KEYS,
+  CONTACT_VISIBILITY_KEY,
+  getPageVisibility,
+  parsePartialVisibilityFromFormData,
+  savePartialPageVisibility,
+  type ContactSectionVisibility,
+} from "@/lib/section-visibility";
 
 export const CONTACT_HERO_KEY = "contact.hero";
 export const CONTACT_DETAILS_KEY = "contact.details";
 export const CONTACT_INSTRUCTIONS_KEY = "contact.instructions";
 export const CONTACT_CARDS_KEY = "contact.cards";
+export const CONTACT_FORM_KEY = "contact.form";
 
 export const MAX_CONTACT_CARDS = 6;
 
@@ -50,14 +59,29 @@ export type EditableContactCard = {
   active: boolean;
 };
 
+export type EditableContactFormCopy = {
+  detailsEyebrow: string;
+  title: string;
+  description: string;
+  nameLabel: string;
+  emailLabel: string;
+  phoneLabel: string;
+  messageLabel: string;
+  submitLabel: string;
+};
+
 export type EditableContactContent = {
   hero: EditableContactHero;
   details: EditableContactDetails;
   instructions: EditableContactInstructions;
+  formCopy: EditableContactFormCopy;
   cards: EditableContactCard[];
+  visibility: ContactSectionVisibility;
 };
 
-export type PublicContactFormPlaceholder = typeof contactFormPlaceholder;
+export type ContactContentFields = Omit<EditableContactContent, "visibility">;
+
+export type PublicContactFormPlaceholder = EditableContactFormCopy;
 
 export type PublicContactContent = {
   hero: EditableContactHero;
@@ -68,7 +92,14 @@ export type PublicContactContent = {
   instructions: EditableContactInstructions;
   formPlaceholder: PublicContactFormPlaceholder;
   cards: EditableContactCard[];
+  visibility: ContactSectionVisibility;
 };
+
+export {
+  CONTACT_VISIBILITY_KEY,
+  CONTACT_SECTION_KEYS,
+  CONTACT_SECTION_LABELS,
+} from "@/lib/section-visibility";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -157,12 +188,29 @@ export function getDefaultContactCards(): EditableContactCard[] {
   return contentContactCards.map((card) => ({ ...card }));
 }
 
+export function getDefaultContactFormCopy(): EditableContactFormCopy {
+  return {
+    detailsEyebrow: "Office Details",
+    title: contactFormPlaceholder.title,
+    description: contactFormPlaceholder.description,
+    nameLabel: contactFormPlaceholder.nameLabel,
+    emailLabel: contactFormPlaceholder.emailLabel,
+    phoneLabel: contactFormPlaceholder.phoneLabel,
+    messageLabel: contactFormPlaceholder.messageLabel,
+    submitLabel: contactFormPlaceholder.submitLabel,
+  };
+}
+
 export function getDefaultContactContent(): EditableContactContent {
   return {
     hero: getDefaultContactHero(),
     details: getDefaultContactDetails(),
     instructions: getDefaultContactInstructions(),
+    formCopy: getDefaultContactFormCopy(),
     cards: getDefaultContactCards(),
+    visibility: Object.fromEntries(
+      CONTACT_SECTION_KEYS.map((key) => [key, true]),
+    ) as ContactSectionVisibility,
   };
 }
 
@@ -278,8 +326,35 @@ function parseCardsRow(
   );
 }
 
+function parseFormCopyRow(
+  row: {
+    title: string | null;
+    subtitle: string | null;
+    metadata: Prisma.JsonValue | null;
+  } | null,
+  defaults: EditableContactFormCopy,
+): EditableContactFormCopy {
+  if (!row) {
+    return defaults;
+  }
+
+  const metadata = asRecord(row.metadata);
+
+  return {
+    detailsEyebrow: asString(metadata.detailsEyebrow, defaults.detailsEyebrow),
+    title: asString(row.title, defaults.title),
+    description: asString(row.subtitle, defaults.description),
+    nameLabel: asString(metadata.nameLabel, defaults.nameLabel),
+    emailLabel: asString(metadata.emailLabel, defaults.emailLabel),
+    phoneLabel: asString(metadata.phoneLabel, defaults.phoneLabel),
+    messageLabel: asString(metadata.messageLabel, defaults.messageLabel),
+    submitLabel: asString(metadata.submitLabel, defaults.submitLabel),
+  };
+}
+
 export async function getEditableContactContent(): Promise<EditableContactContent> {
   const defaults = getDefaultContactContent();
+  const visibility = await getPageVisibility(CONTACT_VISIBILITY_KEY, CONTACT_SECTION_KEYS);
 
   const rows = await prisma.pageContent.findMany({
     where: {
@@ -289,6 +364,7 @@ export async function getEditableContactContent(): Promise<EditableContactConten
           CONTACT_DETAILS_KEY,
           CONTACT_INSTRUCTIONS_KEY,
           CONTACT_CARDS_KEY,
+          CONTACT_FORM_KEY,
         ],
       },
     },
@@ -300,12 +376,15 @@ export async function getEditableContactContent(): Promise<EditableContactConten
   const instructionsRow =
     rows.find((row) => row.sectionKey === CONTACT_INSTRUCTIONS_KEY) ?? null;
   const cardsRow = rows.find((row) => row.sectionKey === CONTACT_CARDS_KEY) ?? null;
+  const formRow = rows.find((row) => row.sectionKey === CONTACT_FORM_KEY) ?? null;
 
   return {
     hero: parseHeroRow(heroRow, defaults.hero),
     details: parseDetailsRow(detailsRow, defaults.details),
     instructions: parseInstructionsRow(instructionsRow, defaults.instructions),
+    formCopy: parseFormCopyRow(formRow, defaults.formCopy),
     cards: parseCardsRow(cardsRow, defaults.cards),
+    visibility: visibility as ContactSectionVisibility,
   };
 }
 
@@ -324,8 +403,9 @@ export function toPublicContactContent(
       emailHref: toEmailHref(content.details.email),
     },
     instructions: content.instructions,
-    formPlaceholder: contactFormPlaceholder,
+    formPlaceholder: content.formCopy,
     cards: activeCards.length > 0 ? activeCards : getDefaultContactCards().filter((c) => c.active),
+    visibility: content.visibility,
   };
 }
 
@@ -339,8 +419,9 @@ export async function getPublicContactContent(): Promise<PublicContactContent> {
 }
 
 export async function saveEditableContactContent(
-  input: EditableContactContent,
-): Promise<void> {
+  input: ContactContentFields,
+  visibilityPartial: Partial<ContactSectionVisibility>,
+): Promise<ContactSectionVisibility> {
   await prisma.$transaction([
     prisma.pageContent.upsert({
       where: { sectionKey: CONTACT_HERO_KEY },
@@ -442,7 +523,50 @@ export async function saveEditableContactContent(
         },
       },
     }),
+    prisma.pageContent.upsert({
+      where: { sectionKey: CONTACT_FORM_KEY },
+      update: {
+        title: input.formCopy.title.trim(),
+        subtitle: input.formCopy.description.trim(),
+        metadata: {
+          detailsEyebrow: input.formCopy.detailsEyebrow.trim(),
+          nameLabel: input.formCopy.nameLabel.trim(),
+          emailLabel: input.formCopy.emailLabel.trim(),
+          phoneLabel: input.formCopy.phoneLabel.trim(),
+          messageLabel: input.formCopy.messageLabel.trim(),
+          submitLabel: input.formCopy.submitLabel.trim(),
+        },
+      },
+      create: {
+        sectionKey: CONTACT_FORM_KEY,
+        title: input.formCopy.title.trim(),
+        subtitle: input.formCopy.description.trim(),
+        metadata: {
+          detailsEyebrow: input.formCopy.detailsEyebrow.trim(),
+          nameLabel: input.formCopy.nameLabel.trim(),
+          emailLabel: input.formCopy.emailLabel.trim(),
+          phoneLabel: input.formCopy.phoneLabel.trim(),
+          messageLabel: input.formCopy.messageLabel.trim(),
+          submitLabel: input.formCopy.submitLabel.trim(),
+        },
+      },
+    }),
   ]);
+
+  return savePartialPageVisibility(
+    CONTACT_VISIBILITY_KEY,
+    CONTACT_SECTION_KEYS,
+    visibilityPartial,
+  ) as Promise<ContactSectionVisibility>;
+}
+
+export function parseContactVisibilityFromFormData(
+  formData: FormData,
+): Partial<ContactSectionVisibility> {
+  return parsePartialVisibilityFromFormData(
+    formData,
+    CONTACT_SECTION_KEYS,
+  ) as Partial<ContactSectionVisibility>;
 }
 
 function readCardFromForm(formData: FormData, index: number): EditableContactCard {
@@ -462,7 +586,7 @@ function readCardFromForm(formData: FormData, index: number): EditableContactCar
   };
 }
 
-export function parseContactFormData(formData: FormData): EditableContactContent {
+export function parseContactFormData(formData: FormData): ContactContentFields {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
 
   const cards = Array.from({ length: MAX_CONTACT_CARDS }, (_, index) =>
@@ -495,6 +619,16 @@ export function parseContactFormData(formData: FormData): EditableContactContent
         .map((item) => item.trim())
         .filter(Boolean),
     },
+    formCopy: {
+      detailsEyebrow: read("form_detailsEyebrow"),
+      title: read("form_title"),
+      description: read("form_description"),
+      nameLabel: read("form_nameLabel"),
+      emailLabel: read("form_emailLabel"),
+      phoneLabel: read("form_phoneLabel"),
+      messageLabel: read("form_messageLabel"),
+      submitLabel: read("form_submitLabel"),
+    },
     cards: cards.length > 0 ? cards : getDefaultContactCards(),
   };
 }
@@ -513,7 +647,7 @@ function isValidUrlField(value: string): boolean {
   );
 }
 
-export function isValidContactContent(content: EditableContactContent): boolean {
+export function isValidContactContent(content: ContactContentFields): boolean {
   const heroValid = Object.values(content.hero).every(Boolean);
   const detailsRequired = [
     content.details.officeName,
@@ -539,13 +673,22 @@ export function isValidContactContent(content: EditableContactContent): boolean 
       isValidUrlField(card.linkHref),
   );
 
+  const formValid = Object.values(content.formCopy).every(Boolean);
+
   const urlsValid =
     isValidUrlField(content.hero.backgroundImageUrl) &&
     isValidUrlField(content.details.mapEmbedUrl) &&
     isValidUrlField(content.details.mapUrl) &&
     content.details.email.includes("@");
 
-  return heroValid && detailsRequired && instructionsValid && cardsValid && urlsValid;
+  return (
+    heroValid &&
+    detailsRequired &&
+    instructionsValid &&
+    cardsValid &&
+    formValid &&
+    urlsValid
+  );
 }
 
 export function getContactCardSlots(cards: EditableContactCard[]): EditableContactCard[] {

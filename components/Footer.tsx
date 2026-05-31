@@ -6,28 +6,47 @@ type FooterProps = {
 };
 
 export default function Footer({ settings }: FooterProps) {
+  const isFullLogo =
+    settings.logoDisplayMode === "full-logo" && Boolean(settings.logoUrl);
+
   return (
     <footer className="footer">
       <div className="ft-grid">
         <div>
-          <div className="ft-logo-row">
-            <div className={settings.logoUrl ? "ft-crest has-logo" : "ft-crest"}>
-              {settings.logoUrl ? (
-                <img
-                  src={settings.logoUrl}
-                  alt=""
-                  className="footer-logo-img"
-                />
-              ) : (
-                settings.crest
-              )}
-            </div>
-            <div>
-              <div className="ft-name">{settings.name}</div>
-              <div className="ft-min">{settings.tagline}</div>
-            </div>
+          <div
+            className={
+              isFullLogo ? "ft-logo-row ft-logo-row-full" : "ft-logo-row"
+            }
+          >
+            {isFullLogo ? (
+              <img
+                src={settings.logoUrl!}
+                alt={settings.name}
+                className="footer-logo-full"
+              />
+            ) : (
+              <>
+                <div
+                  className={settings.logoUrl ? "ft-crest has-logo" : "ft-crest"}
+                >
+                  {settings.logoUrl ? (
+                    <img
+                      src={settings.logoUrl}
+                      alt=""
+                      className="footer-logo-img"
+                    />
+                  ) : (
+                    settings.crest
+                  )}
+                </div>
+                <div>
+                  <div className="ft-name">{settings.name}</div>
+                  <div className="ft-min">{settings.tagline}</div>
+                </div>
+              </>
+            )}
           </div>
-          <p className="ft-desc">{settings.footerDescription}</p>
+          <p className="ft-desc">{settings.footerTagline}</p>
         </div>
 
         <div className="ft-col">

@@ -1,7 +1,7 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import SchemesPageContentForm from "@/components/admin/SchemesPageContentForm";
-import { getEditableSchemesPageContent } from "@/lib/schemes-page-content-data";
+import { getPublicSchemesPageContent } from "@/lib/schemes-page-content-data";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
@@ -15,25 +15,18 @@ export default async function AdminSchemesPageEditor({
 }: AdminSchemesPageEditorProps) {
   const params = searchParams ? await searchParams : {};
   const [content, mediaAssets] = await Promise.all([
-    getEditableSchemesPageContent(),
+    getPublicSchemesPageContent(),
     getAdminMediaSelectorAssets(),
   ]);
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>Housing Schemes Page</h1>
-          <p className="admin-lead">
-            Edit the public /schemes page hero, intro sections, and call-to-action.
-            Individual scheme cards are managed separately.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="Housing Schemes Page"
+        lead="Edit the public /schemes page hero, intro sections, and call-to-action. Individual scheme cards are managed separately."
+        previewHref="/schemes"
+      />
 
       <AdminScopeNotice
         manages={[
@@ -67,7 +60,7 @@ export default async function AdminSchemesPageEditor({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <SchemesPageContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}

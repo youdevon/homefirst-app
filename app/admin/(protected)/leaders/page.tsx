@@ -1,49 +1,77 @@
 import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import LeadersTable from "@/components/admin/LeadersTable";
+import LeadersTypeFilter, {
+  getNewPersonHref,
+  parseLeadersPageType,
+} from "@/components/admin/LeadersTypeFilter";
 import { getAllLeadersForAdmin } from "@/lib/leaders-data";
+import {
+  LEADER_PERSON_TYPE_LABELS,
+  type LeaderPersonType,
+} from "@/lib/leader-person-type";
 
 export const dynamic = "force-dynamic";
 
 type AdminLeadersPageProps = {
-  searchParams?: Promise<{ saved?: string; error?: string }>;
+  searchParams?: Promise<{ saved?: string; error?: string; type?: string }>;
 };
+
+function getEmptyMessage(type: LeaderPersonType | "ALL"): string {
+  if (type === "BOARD") {
+    return "No board members yet. Add the first Board of Directors profile.";
+  }
+
+  if (type === "LEADER") {
+    return "No leadership profiles yet. Add the first leadership team member.";
+  }
+
+  return "No people yet. Add a leadership or board profile.";
+}
 
 export default async function AdminLeadersPage({
   searchParams,
 }: AdminLeadersPageProps) {
   const params = searchParams ? await searchParams : {};
-  const leaders = await getAllLeadersForAdmin();
+  const activeType = parseLeadersPageType(params.type);
+  const leaders = await getAllLeadersForAdmin(
+    activeType === "ALL" ? undefined : activeType,
+  );
 
   const showSuccess = params.saved === "1";
   const showSessionError = params.error === "session";
   const showValidationError = params.error === "validation";
+  const addLabel =
+    activeType === "BOARD"
+      ? "Add Board Member"
+      : activeType === "LEADER"
+        ? "Add Leader"
+        : "Add Person";
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Shared Content</p>
-          <h1>Leaders</h1>
-          <p className="admin-lead">
-            Manage leader profiles. Updates here appear wherever leader cards
-            are shown, including the About page.
-          </p>
-        </div>
-        <div className="admin-header-actions-inline">
-          <Link href="/admin/dashboard" className="admin-back-link">
-            ← Back to dashboard
-          </Link>
-          <Link href="/admin/leaders/new" className="admin-btn admin-btn-primary admin-btn-dark">
-            Add Leader
-          </Link>
-        </div>
-      </div>
+      <AdminPageHeader
+        eyebrow="Shared Content"
+        title="Leaders & Board"
+        lead="Manage leadership team and Board of Directors profiles shown on the About page."
+      >
+        <Link
+          href={getNewPersonHref(activeType)}
+          className="admin-btn admin-btn-primary admin-btn-dark"
+        >
+          {addLabel}
+        </Link>
+      </AdminPageHeader>
 
       <AdminScopeNotice
-        manages={["Leader names, titles, photos, bios, and display order"]}
+        manages={[
+          "Leadership team profiles for the Our Leaders section",
+          "Board of Directors profiles for the board section",
+          "Photos, titles, bios, display order, and active status",
+        ]}
         doesNotManage={[
-          "About page hero, vision, mission, and section headings",
+          "About page section headings and visibility toggles",
         ]}
         relatedLinks={[
           { label: "Edit About page sections", href: "/admin/about" },
@@ -52,7 +80,7 @@ export default async function AdminLeadersPage({
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">
-          Leaders updated successfully.
+          Profiles updated successfully.
         </div>
       ) : null}
 
@@ -68,8 +96,14 @@ export default async function AdminLeadersPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
-        <LeadersTable leaders={leaders} />
+      <div className="admin-panel admin-panel-spaced">
+        <LeadersTypeFilter activeType={activeType} />
+        {activeType !== "ALL" ? (
+          <p className="admin-muted admin-filter-caption">
+            Showing {LEADER_PERSON_TYPE_LABELS[activeType]} profiles only.
+          </p>
+        ) : null}
+        <LeadersTable leaders={leaders} emptyMessage={getEmptyMessage(activeType)} />
       </div>
     </div>
   );

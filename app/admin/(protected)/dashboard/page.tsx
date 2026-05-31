@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAdminBranding } from "@/lib/admin-branding";
+import { getAdminDashboardStats } from "@/lib/admin-dashboard-stats";
 import { getAdminDashboardGroups } from "@/lib/admin-navigation";
 import { canManageUsers } from "@/lib/auth/roles";
 import { getSession } from "@/lib/auth/session";
@@ -12,9 +13,10 @@ export default async function AdminDashboardPage({
   searchParams,
 }: AdminDashboardPageProps) {
   const params = searchParams ? await searchParams : {};
-  const [session, branding] = await Promise.all([
+  const [session, branding, stats] = await Promise.all([
     getSession(),
     getAdminBranding(),
+    getAdminDashboardStats(),
   ]);
   const firstName = session?.name.split(" ")[0] ?? "Admin";
   const isAdmin = session ? canManageUsers(session) : false;
@@ -30,6 +32,33 @@ export default async function AdminDashboardPage({
           settings, page content, and shared records are grouped separately so
           you can find what you need quickly.
         </p>
+      </div>
+
+      <div className="admin-dashboard-stats" aria-label="Website status overview">
+        <div className="admin-dashboard-stat">
+          <span className="admin-dashboard-stat-label">AI Assistant</span>
+          <span
+            className={`admin-badge ${stats.aiAssistantEnabled ? "admin-badge-success" : "admin-badge-muted"}`}
+          >
+            {stats.aiAssistantEnabled ? "Enabled" : "Disabled"}
+          </span>
+        </div>
+        <div className="admin-dashboard-stat">
+          <span className="admin-dashboard-stat-label">Theme preset</span>
+          <span className="admin-badge admin-badge-info">{stats.themePresetLabel}</span>
+        </div>
+        <div className="admin-dashboard-stat">
+          <span className="admin-dashboard-stat-label">Updates (7 days)</span>
+          <span className="admin-badge">{stats.recentUpdateCount}</span>
+        </div>
+        <div className="admin-dashboard-stat">
+          <span className="admin-dashboard-stat-label">Hidden sections</span>
+          <span
+            className={`admin-badge ${stats.hiddenSectionCount > 0 ? "admin-badge-hidden" : ""}`}
+          >
+            {stats.hiddenSectionCount}
+          </span>
+        </div>
       </div>
 
       {params.error === "access" ? (
@@ -51,7 +80,7 @@ export default async function AdminDashboardPage({
                 <div className="admin-card-icon-wrap">
                   <span className="admin-card-icon">{card.icon}</span>
                 </div>
-                <div>
+                <div className="admin-card-body">
                   <h3>{card.label}</h3>
                   <p>{card.description}</p>
                   <span className="admin-card-link">Open section →</span>

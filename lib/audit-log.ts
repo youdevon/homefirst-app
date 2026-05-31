@@ -51,6 +51,7 @@ export const AUDIT_ENTITY_TYPES = {
   ABOUT_PAGE: "About Page",
   CONTACT_PAGE: "Contact Page",
   LEADER: "Leader",
+  BOARD_MEMBER: "Board Member",
   SCHEME: "Scheme",
   NEWS: "News",
   MEDIA: "Media",

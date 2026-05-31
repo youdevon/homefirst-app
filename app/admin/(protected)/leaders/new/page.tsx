@@ -1,11 +1,12 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import LeaderForm from "@/components/admin/LeaderForm";
+import { parseLeaderPersonType } from "@/lib/leader-person-type";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
 
 type AdminNewLeaderPageProps = {
-  searchParams?: Promise<{ error?: string }>;
+  searchParams?: Promise<{ error?: string; type?: string }>;
 };
 
 export default async function AdminNewLeaderPage({
@@ -13,22 +14,23 @@ export default async function AdminNewLeaderPage({
 }: AdminNewLeaderPageProps) {
   const params = searchParams ? await searchParams : {};
   const mediaAssets = await getAdminMediaSelectorAssets();
+  const personType = parseLeaderPersonType(params.type);
+  const isBoardMember = personType === "BOARD";
   const showValidationError = params.error === "validation";
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Leaders</p>
-          <h1>Add Leader</h1>
-          <p className="admin-lead">
-            Create a new leadership profile for the About page.
-          </p>
-        </div>
-        <Link href="/admin/leaders" className="admin-back-link">
-          ← Back to leaders
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Leaders & Board"
+        title={isBoardMember ? "Add Board Member" : "Add Leader"}
+        lead={
+          isBoardMember
+            ? "Create a new Board of Directors profile for the About page."
+            : "Create a new leadership profile for the Our Leaders section."
+        }
+        backHref={`/admin/leaders?type=${personType}`}
+        backLabel="← Back to list"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -36,11 +38,12 @@ export default async function AdminNewLeaderPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <LeaderForm
           action="/api/admin/leaders"
-          submitLabel="Create Leader"
+          submitLabel={isBoardMember ? "Create Board Member" : "Create Leader"}
           imageFiles={mediaAssets.imageFiles}
+          defaultPersonType={personType}
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   formatAuditDateTime,
   formatMetadataForDisplay,
@@ -26,16 +26,13 @@ export default async function AdminAuditDetailPage({ params }: AdminAuditDetailP
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Audit Logs</p>
-          <h1>Audit Entry</h1>
-          <p className="admin-lead">{log.description}</p>
-        </div>
-        <Link href="/admin/audit" className="admin-back-link">
-          ← Back to audit logs
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Audit Logs"
+        title="Audit Entry"
+        lead={log.description}
+        backHref="/admin/audit"
+        backLabel="← Back to audit logs"
+      />
 
       <div className="admin-panel">
         <dl className="admin-detail-list">

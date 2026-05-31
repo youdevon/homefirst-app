@@ -1,6 +1,7 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import SiteSettingsForm from "@/components/admin/SiteSettingsForm";
+import { isAiAssistantEnabled } from "@/lib/ai/chat-config";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 import { getEditableSiteSettings } from "@/lib/site-settings-data";
 
@@ -25,28 +26,19 @@ export default async function AdminSiteSettingsPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Global Settings</p>
-          <h1>Site Settings</h1>
-          <p className="admin-lead">
-            Manage global branding and contact details used in the public header,
-            footer, and browser tab icon.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Global Settings"
+        title="Site Settings"
+        lead="Manage global branding, header, footer, contact details, social links, theme, and AI assistant visibility."
+      />
 
       <AdminScopeNotice
         manages={[
           "Site name and ministry/tagline",
-          "Logo and favicon",
-          "Phone, email, and office hours",
-          "Social media links in the header",
-          "Public website theme preset",
-          "Footer copyright text",
+          "Logo, favicon, and logo display mode",
+          "Phone, email, office hours, and social links",
+          "Footer tagline and copyright",
+          "Public website theme preset and AI assistant visibility",
         ]}
         doesNotManage={[
           "Homepage, About, Contact, and other page body content",
@@ -72,8 +64,12 @@ export default async function AdminSiteSettingsPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
-        <SiteSettingsForm settings={settings} imageFiles={mediaAssets.imageFiles} />
+      <div className="admin-form-stack">
+        <SiteSettingsForm
+          settings={settings}
+          imageFiles={mediaAssets.imageFiles}
+          aiConfigured={isAiAssistantEnabled()}
+        />
       </div>
     </div>
   );

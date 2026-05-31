@@ -12,7 +12,7 @@ export const site = {
   },
   officeHours: "Mon–Fri: 8:00am – 4:00pm",
   copyright: "© 2026 HomeFirst Division. All rights reserved.",
-  footerDescription:
+  footerTagline:
     "Delivering safe, dignified, community-centred housing support for citizens and families.",
 };
 

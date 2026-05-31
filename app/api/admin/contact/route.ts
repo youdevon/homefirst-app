@@ -9,8 +9,16 @@ import {
   logAuditEvent,
 } from "@/lib/audit-log";
 import {
+  CONTACT_SECTION_KEYS,
+  CONTACT_SECTION_LABELS,
+  CONTACT_VISIBILITY_KEY,
+  describeVisibilityChanges,
+  getPageVisibility,
+} from "@/lib/section-visibility";
+import {
   isValidContactContent,
   parseContactFormData,
+  parseContactVisibilityFromFormData,
   saveEditableContactContent,
 } from "@/lib/contact-content-data";
 
@@ -24,14 +32,33 @@ export async function POST(request: NextRequest) {
   }
 
   const formData = await request.formData();
+  const previousVisibility = await getPageVisibility(
+    CONTACT_VISIBILITY_KEY,
+    CONTACT_SECTION_KEYS,
+  );
   const content = parseContactFormData(formData);
+  const visibilityPartial = parseContactVisibilityFromFormData(formData);
 
   if (!isValidContactContent(content)) {
     return redirectTo(request, "/admin/contact?error=validation");
   }
 
   try {
-    await saveEditableContactContent(content);
+    const nextVisibility = await saveEditableContactContent(
+      content,
+      visibilityPartial,
+    );
+
+    const visibilityChanges = describeVisibilityChanges(
+      previousVisibility,
+      nextVisibility,
+      CONTACT_SECTION_LABELS,
+    );
+
+    const description =
+      visibilityChanges.length > 0
+        ? `${session.name} ${visibilityChanges.join(" and ")}.`
+        : `${session.name} updated Contact page content.`;
 
     await logAuditEvent({
       actor: session,
@@ -39,7 +66,7 @@ export async function POST(request: NextRequest) {
       action: AUDIT_ACTIONS.CONTACT_SAVED,
       entityType: AUDIT_ENTITY_TYPES.CONTACT_PAGE,
       entityName: "Contact Page",
-      description: `${session.name} updated Contact page content.`,
+      description,
     });
 
     return redirectTo(request, "/admin/contact?saved=1");

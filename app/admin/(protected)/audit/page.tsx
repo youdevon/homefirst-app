@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AuditLogFiltersForm from "@/components/admin/AuditLogFiltersForm";
 import AuditLogTable from "@/components/admin/AuditLogTable";
 import {
@@ -38,18 +38,11 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Administration</p>
-          <h1>Audit Logs</h1>
-          <p className="admin-lead">
-            Review who changed site content, media, and backend settings.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="Audit Logs"
+        lead="Review who changed site content, media, and backend settings."
+      />
 
       <div className="admin-panel admin-panel-spaced">
         <AuditLogFiltersForm

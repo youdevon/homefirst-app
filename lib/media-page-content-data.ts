@@ -1,6 +1,14 @@
 import { mediaPage } from "@/content/news";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import {
+  MEDIA_PAGE_SECTION_KEYS,
+  MEDIA_PAGE_VISIBILITY_KEY,
+  getPageVisibility,
+  parsePartialVisibilityFromFormData,
+  savePartialPageVisibility,
+  type MediaPageSectionVisibility,
+} from "@/lib/section-visibility";
 
 export const MEDIA_PAGE_SECTION_KEY = "media.page";
 
@@ -15,6 +23,18 @@ export type EditableMediaPageContent = {
   sectionHighlightedTitle: string;
   sectionLead: string;
 };
+
+export type MediaPageContentFields = EditableMediaPageContent;
+
+export type PublicMediaPageContent = EditableMediaPageContent & {
+  visibility: MediaPageSectionVisibility;
+};
+
+export {
+  MEDIA_PAGE_VISIBILITY_KEY,
+  MEDIA_PAGE_SECTION_KEYS,
+  MEDIA_PAGE_SECTION_LABELS,
+} from "@/lib/section-visibility";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -85,17 +105,31 @@ export async function getEditableMediaPageContent(): Promise<EditableMediaPageCo
   return parseMediaPageContent(row, defaults);
 }
 
-export async function getPublicMediaPageContent(): Promise<EditableMediaPageContent> {
+export async function getPublicMediaPageContent(): Promise<PublicMediaPageContent> {
   try {
-    return await getEditableMediaPageContent();
+    const [content, visibility] = await Promise.all([
+      getEditableMediaPageContent(),
+      getPageVisibility(MEDIA_PAGE_VISIBILITY_KEY, MEDIA_PAGE_SECTION_KEYS),
+    ]);
+
+    return {
+      ...content,
+      visibility: visibility as MediaPageSectionVisibility,
+    };
   } catch {
-    return getDefaultMediaPageContent();
+    return {
+      ...getDefaultMediaPageContent(),
+      visibility: Object.fromEntries(
+        MEDIA_PAGE_SECTION_KEYS.map((key) => [key, true]),
+      ) as MediaPageSectionVisibility,
+    };
   }
 }
 
 export async function saveEditableMediaPageContent(
-  input: EditableMediaPageContent,
-): Promise<void> {
+  input: MediaPageContentFields,
+  visibilityPartial: Partial<MediaPageSectionVisibility>,
+): Promise<MediaPageSectionVisibility> {
   await prisma.pageContent.upsert({
     where: { sectionKey: MEDIA_PAGE_SECTION_KEY },
     update: {
@@ -130,9 +164,24 @@ export async function saveEditableMediaPageContent(
       },
     },
   });
+
+  return savePartialPageVisibility(
+    MEDIA_PAGE_VISIBILITY_KEY,
+    MEDIA_PAGE_SECTION_KEYS,
+    visibilityPartial,
+  ) as Promise<MediaPageSectionVisibility>;
 }
 
-export function parseMediaPageFormData(formData: FormData): EditableMediaPageContent {
+export function parseMediaPageVisibilityFromFormData(
+  formData: FormData,
+): Partial<MediaPageSectionVisibility> {
+  return parsePartialVisibilityFromFormData(
+    formData,
+    MEDIA_PAGE_SECTION_KEYS,
+  ) as Partial<MediaPageSectionVisibility>;
+}
+
+export function parseMediaPageFormData(formData: FormData): MediaPageContentFields {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
 
   return {
@@ -148,7 +197,7 @@ export function parseMediaPageFormData(formData: FormData): EditableMediaPageCon
   };
 }
 
-export function isValidMediaPageContent(content: EditableMediaPageContent): boolean {
+export function isValidMediaPageContent(content: MediaPageContentFields): boolean {
   return (
     Boolean(content.title) &&
     Boolean(content.description) &&

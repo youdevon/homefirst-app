@@ -1,6 +1,12 @@
-export default function LoginForm() {
+type LoginFormProps = {
+  nextPath?: string;
+};
+
+export default function LoginForm({ nextPath }: LoginFormProps) {
   return (
     <form method="post" action="/api/admin/login" className="admin-login-form">
+      {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
+
       <label className="admin-field">
         <span>Email</span>
         <input

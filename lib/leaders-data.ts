@@ -1,4 +1,8 @@
 import { leaders as contentLeaders } from "@/content/leaders";
+import {
+  type LeaderPersonType,
+  parseLeaderPersonType,
+} from "@/lib/leader-person-type";
 import { prisma } from "@/lib/prisma";
 
 export type PublicLeader = {
@@ -17,6 +21,7 @@ export type EditableLeader = {
   photoUrl: string;
   displayOrder: number;
   active: boolean;
+  personType: LeaderPersonType;
 };
 
 export type LeaderFormInput = {
@@ -26,6 +31,7 @@ export type LeaderFormInput = {
   photoUrl: string;
   displayOrder: number;
   active: boolean;
+  personType: LeaderPersonType;
 };
 
 function mapDbLeader(leader: {
@@ -36,6 +42,7 @@ function mapDbLeader(leader: {
   photoUrl: string;
   displayOrder: number;
   active: boolean;
+  personType: string;
 }): EditableLeader {
   return {
     id: leader.id,
@@ -45,6 +52,7 @@ function mapDbLeader(leader: {
     photoUrl: leader.photoUrl,
     displayOrder: leader.displayOrder,
     active: leader.active,
+    personType: parseLeaderPersonType(leader.personType),
   };
 }
 
@@ -68,8 +76,11 @@ function getContentFallbackLeaders(): PublicLeader[] {
   }));
 }
 
-export async function getAllLeadersForAdmin(): Promise<EditableLeader[]> {
+export async function getAllLeadersForAdmin(
+  personType?: LeaderPersonType,
+): Promise<EditableLeader[]> {
   const rows = await prisma.leader.findMany({
+    where: personType ? { personType } : undefined,
     orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
   });
 
@@ -81,21 +92,31 @@ export async function getLeaderById(id: string): Promise<EditableLeader | null> 
   return leader ? mapDbLeader(leader) : null;
 }
 
-export async function getPublicLeaders(): Promise<PublicLeader[]> {
+async function getPublicPeopleByType(
+  personType: LeaderPersonType,
+): Promise<PublicLeader[]> {
   try {
     const rows = await prisma.leader.findMany({
-      where: { active: true },
+      where: { active: true, personType },
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    if (rows.length === 0) {
+    if (personType === "LEADER" && rows.length === 0) {
       return getContentFallbackLeaders();
     }
 
     return rows.map((leader) => mapPublicLeader(mapDbLeader(leader)));
   } catch {
-    return getContentFallbackLeaders();
+    return personType === "LEADER" ? getContentFallbackLeaders() : [];
   }
+}
+
+export async function getPublicLeaders(): Promise<PublicLeader[]> {
+  return getPublicPeopleByType("LEADER");
+}
+
+export async function getPublicBoardMembers(): Promise<PublicLeader[]> {
+  return getPublicPeopleByType("BOARD");
 }
 
 export function parseLeaderFormData(formData: FormData): LeaderFormInput {
@@ -111,14 +132,17 @@ export function parseLeaderFormData(formData: FormData): LeaderFormInput {
     photoUrl: String(formData.get("photoUrl") ?? "").trim(),
     displayOrder: Number.isNaN(displayOrder) ? 0 : displayOrder,
     active: String(formData.get("active") ?? "true") === "true",
+    personType: parseLeaderPersonType(formData.get("personType")),
   };
 }
 
 export function isValidLeaderInput(input: LeaderFormInput): boolean {
+  const bioValid = input.personType === "BOARD" ? true : Boolean(input.bio);
+
   return (
     Boolean(input.name) &&
     Boolean(input.title) &&
-    Boolean(input.bio) &&
+    bioValid &&
     Boolean(input.photoUrl) &&
     input.displayOrder >= 0
   );
@@ -133,6 +157,7 @@ export async function createLeader(input: LeaderFormInput): Promise<void> {
       photoUrl: input.photoUrl,
       displayOrder: input.displayOrder,
       active: input.active,
+      personType: input.personType,
     },
   });
 }
@@ -150,6 +175,7 @@ export async function updateLeader(
       photoUrl: input.photoUrl,
       displayOrder: input.displayOrder,
       active: input.active,
+      personType: input.personType,
     },
   });
 }

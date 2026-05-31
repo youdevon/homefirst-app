@@ -16,7 +16,7 @@ export default function SchemesTable({ schemes }: SchemesTableProps) {
 
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table">
+      <table className="admin-table admin-table-compact">
         <thead>
           <tr>
             <th>Order</th>

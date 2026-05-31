@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import NewsTable from "@/components/admin/NewsTable";
 import { getAllNewsItemsForAdmin } from "@/lib/news-data";
@@ -21,24 +22,15 @@ export default async function AdminNewsPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Shared Content</p>
-          <h1>News & Notices</h1>
-          <p className="admin-lead">
-            Manage news and notice articles. Updates here appear on the
-            homepage, /media page, and individual article pages.
-          </p>
-        </div>
-        <div className="admin-header-actions-inline">
-          <Link href="/admin/dashboard" className="admin-back-link">
-            ← Back to dashboard
-          </Link>
-          <Link href="/admin/news/new" className="admin-btn admin-btn-primary admin-btn-dark">
-            Add News Item
-          </Link>
-        </div>
-      </div>
+      <AdminPageHeader
+        eyebrow="Shared Content"
+        title="News & Notices"
+        lead="Manage news and notice articles. Updates here appear on the homepage, /media page, and individual article pages."
+      >
+        <Link href="/admin/news/new" className="admin-btn admin-btn-primary admin-btn-dark">
+          Add News Item
+        </Link>
+      </AdminPageHeader>
 
       <AdminScopeNotice
         manages={[

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import EligibilityPageContentForm from "@/components/admin/EligibilityPageContentForm";
 import { getEditableEligibilityPageContent } from "@/lib/eligibility-page-content-data";
@@ -21,19 +21,12 @@ export default async function AdminEligibilityPageEditor({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>Eligibility Page</h1>
-          <p className="admin-lead">
-            Edit the public eligibility page information, requirements, and
-            call-to-action wording.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="Eligibility Page"
+        lead="Edit the public eligibility page information, requirements, and call-to-action wording."
+        previewHref="/eligibility"
+      />
 
       <AdminScopeNotice
         manages={[
@@ -69,7 +62,7 @@ export default async function AdminEligibilityPageEditor({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <EligibilityPageContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}

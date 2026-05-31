@@ -1,7 +1,7 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import MediaPageContentForm from "@/components/admin/MediaPageContentForm";
-import { getEditableMediaPageContent } from "@/lib/media-page-content-data";
+import { getPublicMediaPageContent } from "@/lib/media-page-content-data";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
@@ -15,25 +15,18 @@ export default async function AdminMediaPageEditor({
 }: AdminMediaPageEditorProps) {
   const params = searchParams ? await searchParams : {};
   const [content, mediaAssets] = await Promise.all([
-    getEditableMediaPageContent(),
+    getPublicMediaPageContent(),
     getAdminMediaSelectorAssets(),
   ]);
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>Media Page</h1>
-          <p className="admin-lead">
-            Edit the public /media page hero and section wording. News articles
-            and notices are managed separately.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="Media Page"
+        lead="Edit the public /media page hero and section wording. News articles and notices are managed separately."
+        previewHref="/media"
+      />
 
       <AdminScopeNotice
         manages={[
@@ -65,7 +58,7 @@ export default async function AdminMediaPageEditor({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <MediaPageContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}

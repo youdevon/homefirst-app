@@ -18,8 +18,12 @@ export default function HomepageVideoForm({
   videoFiles,
 }: HomepageVideoFormProps) {
   return (
-    <form method="post" action={action} className="admin-settings-form">
-      <div className="admin-form-grid">
+    <form
+      method="post"
+      action={action}
+      className="admin-settings-form admin-form-stack"
+    >
+      <div className="admin-form-grid-3">
         <label className="admin-field">
           <span>Title</span>
           <input
@@ -73,7 +77,9 @@ export default function HomepageVideoForm({
             <option value="true">Yes</option>
           </select>
         </label>
+      </div>
 
+      <div className="admin-form-grid-2">
         <label className="admin-field admin-field-full">
           <span>Video URL</span>
           <AdminMediaUrlField

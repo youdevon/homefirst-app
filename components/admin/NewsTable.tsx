@@ -25,7 +25,7 @@ export default function NewsTable({ items }: NewsTableProps) {
 
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table">
+      <table className="admin-table admin-table-compact">
         <thead>
           <tr>
             <th>Published</th>

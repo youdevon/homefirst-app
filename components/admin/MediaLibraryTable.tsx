@@ -1,3 +1,4 @@
+import CopyUrlButton from "@/components/admin/CopyUrlButton";
 import type { EditableMediaFile } from "@/lib/media-data";
 import {
   formatMediaDate,
@@ -31,7 +32,7 @@ export default function MediaLibraryTable({ files }: MediaLibraryTableProps) {
 
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table admin-media-table">
+      <table className="admin-table admin-table-compact admin-media-table">
         <thead>
           <tr>
             <th>Preview</th>
@@ -62,7 +63,10 @@ export default function MediaLibraryTable({ files }: MediaLibraryTableProps) {
               <td>{file.originalName}</td>
               <td>{getMediaTypeLabel(file.fileType)}</td>
               <td>
-                <code className="admin-media-url">{file.fileUrl}</code>
+                <div className="admin-actions-row">
+                  <code className="admin-media-url">{file.fileUrl}</code>
+                  <CopyUrlButton url={file.fileUrl} />
+                </div>
               </td>
               <td>
                 {isImageMediaFile(file.fileType) ? (

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import SchemeForm from "@/components/admin/SchemeForm";
 import { getSchemeById } from "@/lib/schemes-data";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
@@ -30,16 +30,13 @@ export default async function AdminEditSchemePage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Housing Schemes</p>
-          <h1>Edit Scheme</h1>
-          <p className="admin-lead">Update {scheme.name}.</p>
-        </div>
-        <Link href="/admin/schemes" className="admin-back-link">
-          ← Back to schemes
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Housing Schemes"
+        title="Edit Scheme"
+        lead={`Update ${scheme.name}.`}
+        backHref="/admin/schemes"
+        backLabel="← Back to schemes"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -47,7 +44,7 @@ export default async function AdminEditSchemePage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <SchemeForm
           scheme={scheme}
           action={`/api/admin/schemes/${scheme.id}`}

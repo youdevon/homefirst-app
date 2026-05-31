@@ -53,3 +53,10 @@ export const leadershipSection = {
   titleEmphasis: "to Serve You",
   lead: "Our leadership team guides the Division's housing programmes, resident support services, and community development work with a clear focus on accountability, dignity, and public service.",
 };
+
+export const boardSection = {
+  eyebrow: "Governance",
+  title: "Board of",
+  titleEmphasis: "Directors",
+  lead: "Our Board provides oversight and strategic direction to ensure accountable, transparent governance of the Division's housing programmes and community investments.",
+};

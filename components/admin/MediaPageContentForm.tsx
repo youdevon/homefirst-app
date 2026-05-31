@@ -1,9 +1,10 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
-import type { EditableMediaPageContent } from "@/lib/media-page-content-data";
+import type { PublicMediaPageContent } from "@/lib/media-page-content-data";
 import type { MediaSelectorOption } from "@/lib/media-data";
 
 type MediaPageContentFormProps = {
-  content: EditableMediaPageContent;
+  content: PublicMediaPageContent;
   imageFiles: MediaSelectorOption[];
 };
 
@@ -15,11 +16,15 @@ export default function MediaPageContentForm({
     <form
       method="post"
       action="/api/admin/media-page"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Page Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Page hero"
+        defaultOpen
+        visibilityName="visibility_hero"
+        visibilityEnabled={content.visibility.hero}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input type="text" name="eyebrow" defaultValue={content.eyebrow} required />
@@ -47,11 +52,15 @@ export default function MediaPageContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Articles Section Wording</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Articles section wording"
+        defaultOpen={false}
+        visibilityName="visibility_sectionIntro"
+        visibilityEnabled={content.visibility.sectionIntro}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Section eyebrow</span>
             <input type="text" name="section_eyebrow" defaultValue={content.sectionEyebrow} required />
@@ -69,7 +78,34 @@ export default function MediaPageContentForm({
             <textarea name="section_lead" defaultValue={content.sectionLead} required />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Category filter"
+        defaultOpen={false}
+        visibilityName="visibility_categoryFilter"
+        visibilityEnabled={content.visibility.categoryFilter}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Featured article"
+        defaultOpen={false}
+        visibilityName="visibility_featuredArticle"
+        visibilityEnabled={content.visibility.featuredArticle}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Article grid"
+        defaultOpen={false}
+        visibilityName="visibility_articleGrid"
+        visibilityEnabled={content.visibility.articleGrid}
+      >
+        {null}
+      </AdminFormSection>
 
       <div className="admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">

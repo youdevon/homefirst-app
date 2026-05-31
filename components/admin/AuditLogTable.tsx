@@ -16,7 +16,7 @@ export default function AuditLogTable({ logs }: AuditLogTableProps) {
 
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table admin-audit-table">
+      <table className="admin-table admin-table-compact admin-audit-table">
         <thead>
           <tr>
             <th>Date / Time</th>

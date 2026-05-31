@@ -26,12 +26,15 @@ export default function AdminShell({
             <AdminBrandMark
               logoUrl={branding.logoUrl}
               crest={branding.crest}
+              logoDisplayMode={branding.logoDisplayMode}
               variant="header"
             />
-            <span>
-              <strong>{branding.adminTitle}</strong>
-              <small>{getAdminSubtitle(branding.tagline)}</small>
-            </span>
+            {branding.logoDisplayMode === "icon-text" ? (
+              <span>
+                <strong>{branding.adminTitle}</strong>
+                <small>{getAdminSubtitle(branding.tagline)}</small>
+              </span>
+            ) : null}
           </Link>
 
           <div className="admin-header-actions">

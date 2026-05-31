@@ -1,17 +1,23 @@
 import AdminBrandMark from "@/components/admin/AdminBrandMark";
 import { getAdminBranding } from "@/lib/admin-branding";
+import { resolveSafeAdminRedirectPath } from "@/lib/admin-api";
 import LoginForm from "./LoginForm";
 
 export const dynamic = "force-dynamic";
 
 type AdminLoginPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; callback?: string }>;
 };
 
 export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
   const params = await searchParams;
   const branding = await getAdminBranding();
   const showInvalidError = params.error === "invalid";
+  const showMissingError = params.error === "missing";
+  const nextPath = resolveSafeAdminRedirectPath(
+    params.next ?? params.callback,
+    "",
+  );
 
   return (
     <div className="admin-login-page">
@@ -20,12 +26,15 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           <AdminBrandMark
             logoUrl={branding.logoUrl}
             crest={branding.crest}
+            logoDisplayMode={branding.logoDisplayMode}
             variant="login"
           />
-          <div>
-            <h1>{branding.adminTitle}</h1>
-            <p className="admin-login-tagline">{branding.tagline}</p>
-          </div>
+          {branding.logoDisplayMode === "icon-text" ? (
+            <div>
+              <h1>{branding.adminTitle}</h1>
+              <p className="admin-login-tagline">{branding.tagline}</p>
+            </div>
+          ) : null}
         </div>
 
         <p className="admin-login-intro">Sign in to manage website content.</p>
@@ -36,7 +45,13 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           </div>
         ) : null}
 
-        <LoginForm />
+        {showMissingError ? (
+          <div className="admin-alert admin-alert-error" role="alert">
+            Enter both your email and password to sign in.
+          </div>
+        ) : null}
+
+        <LoginForm nextPath={nextPath || undefined} />
 
         <p className="admin-login-note">
           Internal access only. Contact your system administrator if you need

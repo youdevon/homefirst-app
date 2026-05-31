@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import ContactContentForm from "@/components/admin/ContactContentForm";
 import { getEditableContactContent } from "@/lib/contact-content-data";
@@ -25,19 +25,12 @@ export default async function AdminContactPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>Contact Page</h1>
-          <p className="admin-lead">
-            Edit the Contact page hero, office details, instructions, and
-            quick-action cards.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="Contact Page"
+        lead="Edit the Contact page hero, office details, instructions, and quick-action cards."
+        previewHref="/contact"
+      />
 
       <AdminScopeNotice
         manages={[
@@ -71,7 +64,7 @@ export default async function AdminContactPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <ContactContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}

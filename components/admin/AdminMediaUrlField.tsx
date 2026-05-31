@@ -9,6 +9,7 @@ type AdminMediaUrlFieldProps = {
   options: MediaSelectorOption[];
   required?: boolean;
   placeholder?: string;
+  showInlineHelp?: boolean;
 };
 
 export default function AdminMediaUrlField({
@@ -17,6 +18,7 @@ export default function AdminMediaUrlField({
   options,
   required = false,
   placeholder,
+  showInlineHelp = true,
 }: AdminMediaUrlFieldProps) {
   const [value, setValue] = useState(defaultValue);
   const selectedOption = options.find((option) => option.fileUrl === value);
@@ -51,9 +53,11 @@ export default function AdminMediaUrlField({
         placeholder={placeholder}
       />
 
-      <span className="admin-form-help">
-        Choose from Media Library or paste a custom URL.
-      </span>
+      {showInlineHelp ? (
+        <span className="admin-form-help">
+          Choose from Media Library or paste a custom URL.
+        </span>
+      ) : null}
     </div>
   );
 }

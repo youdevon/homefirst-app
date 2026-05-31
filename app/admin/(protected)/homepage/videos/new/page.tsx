@@ -44,7 +44,7 @@ export default async function AdminNewHomepageVideoPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <HomepageVideoForm
           action="/api/admin/homepage-videos"
           submitLabel="Create Video"

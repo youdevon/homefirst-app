@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AIAssistantWidget from "@/components/AIAssistantWidget";
 import { getPublicSiteSettings } from "@/lib/site-settings-data";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default async function SiteLayout({
       <Navbar settings={settings} />
       {children}
       <Footer settings={settings} />
+      {settings.aiAssistantEnabled ? <AIAssistantWidget /> : null}
     </div>
   );
 }

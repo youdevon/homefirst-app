@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminUsersTable from "@/components/admin/AdminUsersTable";
 import { getAllAdminUsersForAdmin } from "@/lib/admin-users-data";
 import { requireAdminRoleSession } from "@/lib/auth/require-admin-role";
@@ -21,23 +22,15 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Administration</p>
-          <h1>User Management</h1>
-          <p className="admin-lead">
-            Create and manage backend admin and contributor accounts.
-          </p>
-        </div>
-        <div className="admin-header-actions-inline">
-          <Link href="/admin/dashboard" className="admin-back-link">
-            ← Back to dashboard
-          </Link>
-          <Link href="/admin/users/new" className="admin-btn admin-btn-primary admin-btn-dark">
-            Add User
-          </Link>
-        </div>
-      </div>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="Users"
+        lead="Create and manage backend admin and contributor accounts."
+      >
+        <Link href="/admin/users/new" className="admin-btn admin-btn-primary admin-btn-dark">
+          Add User
+        </Link>
+      </AdminPageHeader>
 
       {showSuccess ? (
         <div className="admin-alert admin-alert-success" role="status">

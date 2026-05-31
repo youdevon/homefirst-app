@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminUserForm from "@/components/admin/AdminUserForm";
 import { requireAdminRoleSession } from "@/lib/auth/require-admin-role";
 
@@ -15,16 +15,13 @@ export default async function AdminNewUserPage({ searchParams }: AdminNewUserPag
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">User Management</p>
-          <h1>Add User</h1>
-          <p className="admin-lead">Create a new admin or contributor account.</p>
-        </div>
-        <Link href="/admin/users" className="admin-back-link">
-          ← Back to users
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="Add User"
+        lead="Create a new admin or contributor account."
+        backHref="/admin/users"
+        backLabel="← Back to users"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -32,7 +29,7 @@ export default async function AdminNewUserPage({ searchParams }: AdminNewUserPag
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <AdminUserForm action="/api/admin/users" submitLabel="Create User" />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import HomepageContentForm from "@/components/admin/HomepageContentForm";
 import HomepageVideosSectionForm from "@/components/admin/HomepageVideosSectionForm";
@@ -41,25 +42,19 @@ export default async function AdminHomepagePage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>Home Page</h1>
-          <p className="admin-lead">
-            Edit homepage body sections including the hero, slideshow images,
-            call-to-action banner, and Real Communities video area.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="Home Page"
+        lead="Edit homepage hero media, section headings, calls to action, and Real Communities video area."
+        previewHref="/"
+      />
 
       <AdminScopeNotice
         manages={[
-          "Homepage hero text and buttons",
-          "Hero background slideshow images",
-          "Homepage CTA banner",
+          "Homepage hero text, images, and videos",
+          "Hero background media rotation",
+          "Housing schemes preview heading",
+          "Homepage CTA / enquiry section",
           "Real Communities video section heading and videos",
         ]}
         doesNotManage={[
@@ -108,25 +103,25 @@ export default async function AdminHomepagePage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <HomepageContentForm
           content={content}
           imageFiles={mediaAssets.imageFiles}
+          videoFiles={mediaAssets.videoFiles}
         />
-      </div>
 
-      <div className="admin-panel admin-panel-spaced">
-        <HomepageVideosSectionForm header={videoHeader} />
-      </div>
+        <HomepageVideosSectionForm
+          header={videoHeader}
+          visibilityEnabled={content.visibility.videoSection}
+        />
 
-      <div className="admin-panel admin-panel-spaced">
-        <div className="admin-form-section">
+        <section className="admin-section-card">
           <div className="admin-page-header admin-page-header-compact">
             <div>
-              <h2 className="admin-form-section-title">Video Items</h2>
-              <p className="admin-form-section-lead">
-                Manage playable homepage videos. Use Media Library paths for
-                uploaded files.
+              <h2 className="admin-section-title">Video items</h2>
+              <p className="admin-section-lead">
+                Manage playable homepage videos. Use Media Library paths for uploaded
+                files.
               </p>
             </div>
             <Link
@@ -136,9 +131,9 @@ export default async function AdminHomepagePage({
               Add Video
             </Link>
           </div>
-        </div>
 
-        <HomepageVideosTable videos={videos} />
+          <HomepageVideosTable videos={videos} />
+        </section>
       </div>
     </div>
   );

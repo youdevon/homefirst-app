@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getAdminBranding } from "@/lib/admin-branding";
 import "./admin.css";
+import "./admin-polish.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const branding = await getAdminBranding();

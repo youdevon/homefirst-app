@@ -1,3 +1,4 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableAboutContent } from "@/lib/about-content-data";
 import type { MediaSelectorOption } from "@/lib/media-data";
@@ -15,11 +16,15 @@ export default function AboutContentForm({
     <form
       method="post"
       action="/api/admin/about"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">About Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="About Hero"
+        visibilityName="visibility_hero"
+        visibilityEnabled={content.visibility.hero}
+        defaultOpen
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input
@@ -70,11 +75,15 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Who We Are / Intro</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Who We Are / Intro"
+        visibilityName="visibility_intro"
+        visibilityEnabled={content.visibility.intro}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input
@@ -123,11 +132,15 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Vision & Mission</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Vision & Mission"
+        visibilityName="visibility_visionMission"
+        visibilityEnabled={content.visibility.visionMission}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Vision title</span>
             <input
@@ -166,11 +179,15 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Highlights</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Highlights"
+        visibilityName="visibility_highlights"
+        visibilityEnabled={content.visibility.highlights}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-3">
           <label className="admin-field">
             <span>Highlight one value</span>
             <input
@@ -231,11 +248,15 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Images</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Images"
+        visibilityName="visibility_images"
+        visibilityEnabled={content.visibility.images}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field admin-field-full">
             <span>Main image URL</span>
             <AdminMediaUrlField
@@ -278,14 +299,16 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Leadership Header</h2>
-        <p className="admin-form-help">
-          Leader profiles are managed separately in the Leaders editor.
-        </p>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Our Leaders"
+        lead="Leader profiles are managed in Leaders & Board. Use this section to edit the heading shown above the leadership cards."
+        visibilityName="visibility_leadership"
+        visibilityEnabled={content.visibility.leadership}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input
@@ -325,9 +348,58 @@ export default function AboutContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-actions">
+      <AdminFormSection
+        title="Board of Directors"
+        lead="Board member profiles are managed in Leaders & Board. Use this section to edit the heading shown above the board cards."
+        visibilityName="visibility_board"
+        visibilityEnabled={content.visibility.board}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
+          <label className="admin-field">
+            <span>Section eyebrow</span>
+            <input
+              type="text"
+              name="board_eyebrow"
+              defaultValue={content.boardHeader.eyebrow}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Section title</span>
+            <input
+              type="text"
+              name="board_title"
+              defaultValue={content.boardHeader.title}
+              required
+            />
+          </label>
+
+          <label className="admin-field admin-field-full">
+            <span>Highlighted title</span>
+            <input
+              type="text"
+              name="board_highlightedTitle"
+              defaultValue={content.boardHeader.highlightedTitle}
+              required
+            />
+          </label>
+
+          <label className="admin-field admin-field-full">
+            <span>Section description</span>
+            <textarea
+              name="board_description"
+              defaultValue={content.boardHeader.description}
+              required
+            />
+          </label>
+        </div>
+      </AdminFormSection>
+
+      <div className="admin-save-bar admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">
           Save About Page
         </button>

@@ -1,23 +1,27 @@
 import Link from "next/link";
-import { schemesSection } from "@/content/schemes";
+import { getPublicHomepageContent } from "@/lib/homepage-content-data";
 import { getPublicSchemes } from "@/lib/schemes-data";
 
 export default async function SchemesPreview() {
-  const schemes = await getPublicSchemes();
+  const [schemes, homepage] = await Promise.all([
+    getPublicSchemes(),
+    getPublicHomepageContent(),
+  ]);
+  const section = homepage.schemesPreview;
 
   return (
     <section className="sec sch-sec">
       <div className="wrap">
         <div className="sch-head">
           <div>
-            <span className="eyebrow">{schemesSection.eyebrow}</span>
+            <span className="eyebrow">{section.eyebrow}</span>
             <h2 className="sec-title">
-              {schemesSection.title} <em>{schemesSection.titleEmphasis}</em>
+              {section.title} <em>{section.highlightedTitle}</em>
             </h2>
           </div>
 
-          <Link href={schemesSection.viewAllHref} className="lk">
-            {schemesSection.viewAllLabel}
+          <Link href={section.viewAllHref} className="lk">
+            {section.viewAllLabel}
           </Link>
         </div>
 
@@ -39,7 +43,7 @@ export default async function SchemesPreview() {
                 <div className="sch-foot">
                   <span>{scheme.meta}</span>
                   <Link href={scheme.href} className="sch-cta">
-                    {schemesSection.cardCtaLabel}
+                    {section.cardCtaLabel}
                   </Link>
                 </div>
               </div>

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminUserForm from "@/components/admin/AdminUserForm";
 import { getAdminUserById } from "@/lib/admin-users-data";
 import { requireAdminRoleSession } from "@/lib/auth/require-admin-role";
@@ -29,16 +29,13 @@ export default async function AdminEditUserPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">User Management</p>
-          <h1>Edit User</h1>
-          <p className="admin-lead">Update {user.name}&apos;s account details.</p>
-        </div>
-        <Link href="/admin/users" className="admin-back-link">
-          ← Back to users
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Administration"
+        title="Edit User"
+        lead={`Update ${user.name}'s account details.`}
+        backHref="/admin/users"
+        backLabel="← Back to users"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -52,7 +49,7 @@ export default async function AdminEditUserPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <AdminUserForm
           user={user}
           action={`/api/admin/users/${user.id}`}

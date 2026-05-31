@@ -14,6 +14,10 @@ import {
   type EditableSiteSettings,
 } from "@/lib/site-settings-data";
 import {
+  getLogoDisplayModeLabel,
+  normalizeLogoDisplayMode,
+} from "@/lib/logo-display-mode";
+import {
   getThemePresetLabel,
   normalizeThemePreset,
 } from "@/lib/theme-presets";
@@ -32,13 +36,18 @@ function parseSettings(formData: FormData): EditableSiteSettings {
     email: readFormField(formData, "email"),
     officeHours: readFormField(formData, "officeHours"),
     copyright: readFormField(formData, "copyright"),
+    footerTagline: readFormField(formData, "footerTagline"),
     logoUrl: readFormField(formData, "logoUrl"),
     faviconUrl: readFormField(formData, "faviconUrl"),
+    logoDisplayMode: normalizeLogoDisplayMode(
+      readFormField(formData, "logoDisplayMode"),
+    ),
     socialFacebook: readFormField(formData, "socialFacebook"),
     socialInstagram: readFormField(formData, "socialInstagram"),
     socialYoutube: readFormField(formData, "socialYoutube"),
     socialLinkedin: readFormField(formData, "socialLinkedin"),
     themePreset: normalizeThemePreset(readFormField(formData, "themePreset")),
+    aiAssistantEnabled: formData.get("aiAssistantEnabled") === "1",
   };
 }
 
@@ -106,9 +115,44 @@ export async function POST(request: NextRequest) {
 
     const themeChanged =
       previousSettings.themePreset !== settings.themePreset;
-    const description = themeChanged
-      ? `${session.name} changed the public website theme to ${getThemePresetLabel(settings.themePreset)}.`
-      : `${session.name} updated Site Settings.`;
+    const logoDisplayModeChanged =
+      previousSettings.logoDisplayMode !== settings.logoDisplayMode;
+    const footerTaglineChanged =
+      previousSettings.footerTagline !== settings.footerTagline;
+    const faviconChanged =
+      previousSettings.faviconUrl !== settings.faviconUrl;
+    const aiAssistantChanged =
+      previousSettings.aiAssistantEnabled !== settings.aiAssistantEnabled;
+
+    const changeParts: string[] = [];
+    if (themeChanged) {
+      changeParts.push(
+        `changed the public website theme to ${getThemePresetLabel(settings.themePreset)}`,
+      );
+    }
+    if (logoDisplayModeChanged) {
+      changeParts.push(
+        `changed logo display mode to ${getLogoDisplayModeLabel(settings.logoDisplayMode)}`,
+      );
+    }
+    if (footerTaglineChanged) {
+      changeParts.push("updated the footer tagline");
+    }
+    if (faviconChanged) {
+      changeParts.push("updated the browser tab icon");
+    }
+    if (aiAssistantChanged) {
+      changeParts.push(
+        settings.aiAssistantEnabled
+          ? "enabled the public AI assistant"
+          : "disabled the public AI assistant",
+      );
+    }
+
+    const description =
+      changeParts.length > 0
+        ? `${session.name} ${changeParts.join(" and ")}.`
+        : `${session.name} updated Site Settings.`;
 
     await logAuditEvent({
       actor: session,
@@ -122,6 +166,8 @@ export async function POST(request: NextRequest) {
         tagline: settings.tagline,
         themePreset: settings.themePreset,
         themeChanged,
+        logoDisplayMode: settings.logoDisplayMode,
+        logoDisplayModeChanged,
       },
     });
 

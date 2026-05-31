@@ -22,6 +22,7 @@ function isActivePath(pathname: string, href: string): boolean {
 export default function NavbarClient({ settings }: NavbarClientProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const isFullLogo = settings.logoDisplayMode === "full-logo";
   // Placeholder links until all social URLs are configured in Site Settings.
   const socialLinks =
     settings.socialLinks.length > 0
@@ -33,27 +34,47 @@ export default function NavbarClient({ settings }: NavbarClientProps) {
   }
 
   return (
-    <header className="site-header">
+    <header
+      className={isFullLogo ? "site-header site-header-full-logo" : "site-header"}
+    >
       <div className="header-top">
         <div className="header-top-inner">
-          <Link href="/" className="header-brand" onClick={closeMenu}>
-            <div className={settings.logoUrl ? "crest has-logo" : "crest"}>
-              {settings.logoUrl ? (
-                <img
-                  src={settings.logoUrl}
-                  alt=""
-                  className="brand-logo-img"
-                />
-              ) : (
-                settings.crest
-              )}
-            </div>
-            <div className="header-brand-text">
-              <span className="logo-div">{settings.name}</span>
-              <span className="logo-min header-brand-tagline">
-                {settings.tagline}
-              </span>
-            </div>
+          <Link
+            href="/"
+            className={
+              isFullLogo
+                ? "header-brand header-brand-full-logo"
+                : "header-brand"
+            }
+            onClick={closeMenu}
+          >
+            {isFullLogo && settings.logoUrl ? (
+              <img
+                src={settings.logoUrl}
+                alt={settings.name}
+                className="brand-logo-full brand-full-logo"
+              />
+            ) : (
+              <>
+                <div className={settings.logoUrl ? "crest has-logo" : "crest"}>
+                  {settings.logoUrl ? (
+                    <img
+                      src={settings.logoUrl}
+                      alt=""
+                      className="brand-logo-img"
+                    />
+                  ) : (
+                    settings.crest
+                  )}
+                </div>
+                <div className="header-brand-text">
+                  <span className="logo-div">{settings.name}</span>
+                  <span className="logo-min header-brand-tagline">
+                    {settings.tagline}
+                  </span>
+                </div>
+              </>
+            )}
           </Link>
 
           <div className="header-top-right">

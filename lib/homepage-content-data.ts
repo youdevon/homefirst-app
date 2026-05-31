@@ -1,10 +1,30 @@
 import { hero, ctaBanner } from "@/content/home";
+import { schemesSection } from "@/content/schemes";
+import {
+  HERO_MEDIA_SLOTS,
+  type HeroMediaItem,
+  type PublicHeroMediaItem,
+  heroMediaToMetadata,
+  parseHeroMediaFromMetadata,
+  resolvePublicHeroMedia,
+  syncHeroImagesFromMedia,
+} from "@/lib/hero-media";
+import {
+  HOME_SECTION_KEYS,
+  HOME_VISIBILITY_FORM_KEYS,
+  HOME_VISIBILITY_KEY,
+  getPageVisibility,
+  parsePartialVisibilityFromFormData,
+  savePartialPageVisibility,
+  type HomeSectionVisibility,
+} from "@/lib/section-visibility";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
 export const HERO_SECTION_KEY = "home.hero";
 export const CTA_SECTION_KEY = "home.cta";
-export const HERO_BACKGROUND_IMAGE_SLOTS = 5;
+export const SCHEMES_PREVIEW_SECTION_KEY = "home.schemesPreview";
+export const HERO_BACKGROUND_IMAGE_SLOTS = 10;
 
 export const DEFAULT_HERO_BACKGROUND_URL =
   "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1800&q=85";
@@ -20,6 +40,7 @@ export type EditableHomeHero = {
   secondaryCtaHref: string;
   backgroundImageUrl: string;
   heroImages: string[];
+  heroMedia: HeroMediaItem[];
 };
 
 export type EditableCtaBanner = {
@@ -29,14 +50,38 @@ export type EditableCtaBanner = {
   description: string;
   formTitle: string;
   submitLabel: string;
+  submitHref: string;
+  placeholderName: string;
+  placeholderEmail: string;
+  placeholderPhone: string;
+  assurancesText: string;
 };
+
+export type EditableSchemesPreviewSection = {
+  eyebrow: string;
+  title: string;
+  highlightedTitle: string;
+  viewAllLabel: string;
+  viewAllHref: string;
+  cardCtaLabel: string;
+};
+
+export type HomepageContentFields = Omit<EditableHomepageContent, "visibility">;
 
 export type EditableHomepageContent = {
   hero: EditableHomeHero;
+  schemesPreview: EditableSchemesPreviewSection;
   ctaBanner: EditableCtaBanner;
+  visibility: HomeSectionVisibility;
 };
 
-export type PublicCtaBanner = EditableCtaBanner & {
+export type PublicCtaBanner = {
+  eyebrow: string;
+  title: string;
+  highlightedTitle: string;
+  description: string;
+  formTitle: string;
+  submitLabel: string;
   submitHref: string;
   placeholders: {
     name: string;
@@ -46,12 +91,19 @@ export type PublicCtaBanner = EditableCtaBanner & {
   assurances: string[];
 };
 
-export type PublicHomepageContent = {
-  hero: EditableHomeHero & {
-    backgroundImages: string[];
-  };
-  ctaBanner: PublicCtaBanner;
+export type PublicHomeHero = Omit<EditableHomeHero, "heroMedia"> & {
+  backgroundImages: string[];
+  heroMedia: PublicHeroMediaItem[];
 };
+
+export type PublicHomepageContent = {
+  hero: PublicHomeHero;
+  schemesPreview: EditableSchemesPreviewSection;
+  ctaBanner: PublicCtaBanner;
+  visibility: HomeSectionVisibility;
+};
+
+export { HOME_VISIBILITY_KEY, HOME_SECTION_KEYS, HOME_SECTION_LABELS } from "@/lib/section-visibility";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -91,6 +143,11 @@ function normalizeHeroImageSlots(values: string[]): string[] {
 }
 
 export function resolvePublicHeroBackgroundImages(hero: EditableHomeHero): string[] {
+  const fromMedia = syncHeroImagesFromMedia(hero.heroMedia);
+  if (fromMedia.length > 0) {
+    return fromMedia;
+  }
+
   const fromList = hero.heroImages.filter(Boolean);
 
   if (fromList.length > 0) {
@@ -116,6 +173,7 @@ export function getDefaultHomeHero(): EditableHomeHero {
     secondaryCtaHref: hero.secondaryCta.href,
     backgroundImageUrl: DEFAULT_HERO_BACKGROUND_URL,
     heroImages: [],
+    heroMedia: [],
   };
 }
 
@@ -127,13 +185,33 @@ export function getDefaultCtaBanner(): EditableCtaBanner {
     description: ctaBanner.lead,
     formTitle: ctaBanner.formTitle,
     submitLabel: ctaBanner.submitLabel,
+    submitHref: ctaBanner.submitHref,
+    placeholderName: ctaBanner.placeholders.name,
+    placeholderEmail: ctaBanner.placeholders.email,
+    placeholderPhone: ctaBanner.placeholders.phone,
+    assurancesText: ctaBanner.assurances.join("\n"),
+  };
+}
+
+export function getDefaultSchemesPreviewSection(): EditableSchemesPreviewSection {
+  return {
+    eyebrow: schemesSection.eyebrow,
+    title: schemesSection.title,
+    highlightedTitle: schemesSection.titleEmphasis,
+    viewAllLabel: schemesSection.viewAllLabel,
+    viewAllHref: schemesSection.viewAllHref,
+    cardCtaLabel: schemesSection.cardCtaLabel,
   };
 }
 
 export function getDefaultHomepageContent(): EditableHomepageContent {
   return {
     hero: getDefaultHomeHero(),
+    schemesPreview: getDefaultSchemesPreviewSection(),
     ctaBanner: getDefaultCtaBanner(),
+    visibility: Object.fromEntries(
+      HOME_SECTION_KEYS.map((key) => [key, true]),
+    ) as HomeSectionVisibility,
   };
 }
 
@@ -153,6 +231,13 @@ function parseHeroFromPageContent(
   const metadata = asRecord(row.metadata);
   const primaryCta = asCtaObject(metadata.primaryCta);
   const secondaryCta = asCtaObject(metadata.secondaryCta);
+  const backgroundImageUrl = asString(row.imageUrl, defaults.backgroundImageUrl);
+  const heroImages = normalizeHeroImageSlots(asStringArray(metadata.heroImages));
+  const heroMedia = parseHeroMediaFromMetadata(
+    metadata,
+    heroImages,
+    backgroundImageUrl,
+  );
 
   return {
     badge: asString(metadata.badge, defaults.badge),
@@ -178,8 +263,9 @@ function parseHeroFromPageContent(
       metadata.secondaryCtaHref ?? secondaryCta.href,
       defaults.secondaryCtaHref,
     ),
-    backgroundImageUrl: asString(row.imageUrl, defaults.backgroundImageUrl),
-    heroImages: normalizeHeroImageSlots(asStringArray(metadata.heroImages)),
+    backgroundImageUrl,
+    heroImages,
+    heroMedia,
   };
 }
 
@@ -196,6 +282,8 @@ function parseCtaFromPageContent(
   }
 
   const metadata = asRecord(row.metadata);
+  const placeholders = asRecord(metadata.placeholders);
+  const assurances = asStringArray(metadata.assurances);
 
   return {
     eyebrow: asString(metadata.eyebrow, defaults.eyebrow),
@@ -207,26 +295,101 @@ function parseCtaFromPageContent(
     description: asString(row.subtitle, defaults.description),
     formTitle: asString(metadata.formTitle, defaults.formTitle),
     submitLabel: asString(metadata.submitLabel, defaults.submitLabel),
+    submitHref: asString(metadata.submitHref, defaults.submitHref),
+    placeholderName: asString(
+      metadata.placeholderName ?? placeholders.name,
+      defaults.placeholderName,
+    ),
+    placeholderEmail: asString(
+      metadata.placeholderEmail ?? placeholders.email,
+      defaults.placeholderEmail,
+    ),
+    placeholderPhone: asString(
+      metadata.placeholderPhone ?? placeholders.phone,
+      defaults.placeholderPhone,
+    ),
+    assurancesText:
+      assurances.length > 0
+        ? assurances.join("\n")
+        : asString(metadata.assurancesText, defaults.assurancesText),
+  };
+}
+
+function parseSchemesPreviewFromPageContent(
+  row: {
+    title: string | null;
+    metadata: Prisma.JsonValue | null;
+  } | null,
+  defaults: EditableSchemesPreviewSection,
+): EditableSchemesPreviewSection {
+  if (!row) {
+    return defaults;
+  }
+
+  const metadata = asRecord(row.metadata);
+
+  return {
+    eyebrow: asString(metadata.eyebrow, defaults.eyebrow),
+    title: asString(row.title, defaults.title),
+    highlightedTitle: asString(
+      metadata.highlightedTitle ?? metadata.titleEmphasis,
+      defaults.highlightedTitle,
+    ),
+    viewAllLabel: asString(metadata.viewAllLabel, defaults.viewAllLabel),
+    viewAllHref: asString(metadata.viewAllHref, defaults.viewAllHref),
+    cardCtaLabel: asString(metadata.cardCtaLabel, defaults.cardCtaLabel),
+  };
+}
+
+function toPublicCtaBanner(content: EditableCtaBanner): PublicCtaBanner {
+  const assurances = content.assurancesText
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return {
+    eyebrow: content.eyebrow,
+    title: content.title,
+    highlightedTitle: content.highlightedTitle,
+    description: content.description,
+    formTitle: content.formTitle,
+    submitLabel: content.submitLabel,
+    submitHref: content.submitHref,
+    placeholders: {
+      name: content.placeholderName,
+      email: content.placeholderEmail,
+      phone: content.placeholderPhone,
+    },
+    assurances:
+      assurances.length > 0 ? assurances : ctaBanner.assurances,
   };
 }
 
 export async function getEditableHomepageContent(): Promise<EditableHomepageContent> {
   const defaults = getDefaultHomepageContent();
+  const visibility = await getPageVisibility(HOME_VISIBILITY_KEY, HOME_SECTION_KEYS);
 
   const rows = await prisma.pageContent.findMany({
     where: {
       sectionKey: {
-        in: [HERO_SECTION_KEY, CTA_SECTION_KEY],
+        in: [HERO_SECTION_KEY, CTA_SECTION_KEY, SCHEMES_PREVIEW_SECTION_KEY],
       },
     },
   });
 
   const heroRow = rows.find((row) => row.sectionKey === HERO_SECTION_KEY) ?? null;
   const ctaRow = rows.find((row) => row.sectionKey === CTA_SECTION_KEY) ?? null;
+  const schemesPreviewRow =
+    rows.find((row) => row.sectionKey === SCHEMES_PREVIEW_SECTION_KEY) ?? null;
 
   return {
     hero: parseHeroFromPageContent(heroRow, defaults.hero),
+    schemesPreview: parseSchemesPreviewFromPageContent(
+      schemesPreviewRow,
+      defaults.schemesPreview,
+    ),
     ctaBanner: parseCtaFromPageContent(ctaRow, defaults.ctaBanner),
+    visibility: visibility as HomeSectionVisibility,
   };
 }
 
@@ -238,13 +401,14 @@ export async function getPublicHomepageContent(): Promise<PublicHomepageContent>
       hero: {
         ...content.hero,
         backgroundImages: resolvePublicHeroBackgroundImages(content.hero),
+        heroMedia: resolvePublicHeroMedia(
+          content.hero.heroMedia,
+          content.hero.backgroundImageUrl,
+        ),
       },
-      ctaBanner: {
-        ...content.ctaBanner,
-        submitHref: ctaBanner.submitHref,
-        placeholders: ctaBanner.placeholders,
-        assurances: ctaBanner.assurances,
-      },
+      schemesPreview: content.schemesPreview,
+      ctaBanner: toPublicCtaBanner(content.ctaBanner),
+      visibility: content.visibility,
     };
   } catch {
     const defaults = getDefaultHomepageContent();
@@ -253,20 +417,25 @@ export async function getPublicHomepageContent(): Promise<PublicHomepageContent>
       hero: {
         ...defaults.hero,
         backgroundImages: resolvePublicHeroBackgroundImages(defaults.hero),
+        heroMedia: resolvePublicHeroMedia(
+          defaults.hero.heroMedia,
+          defaults.hero.backgroundImageUrl,
+        ),
       },
-      ctaBanner: {
-        ...defaults.ctaBanner,
-        submitHref: ctaBanner.submitHref,
-        placeholders: ctaBanner.placeholders,
-        assurances: ctaBanner.assurances,
-      },
+      schemesPreview: defaults.schemesPreview,
+      ctaBanner: toPublicCtaBanner(defaults.ctaBanner),
+      visibility: defaults.visibility,
     };
   }
 }
 
 export async function saveEditableHomepageContent(
-  input: EditableHomepageContent,
-): Promise<void> {
+  input: HomepageContentFields,
+  visibilityPartial: Partial<HomeSectionVisibility>,
+): Promise<HomeSectionVisibility> {
+  const heroMediaMetadata = heroMediaToMetadata(input.hero.heroMedia);
+  const syncedHeroImages = syncHeroImagesFromMedia(input.hero.heroMedia);
+
   await prisma.$transaction([
     prisma.pageContent.upsert({
       where: { sectionKey: HERO_SECTION_KEY },
@@ -281,7 +450,8 @@ export async function saveEditableHomepageContent(
           primaryCtaHref: input.hero.primaryCtaHref.trim(),
           secondaryCtaLabel: input.hero.secondaryCtaLabel.trim(),
           secondaryCtaHref: input.hero.secondaryCtaHref.trim(),
-          heroImages: input.hero.heroImages.map((url) => url.trim()).filter(Boolean),
+          heroImages: syncedHeroImages,
+          heroMedia: heroMediaMetadata,
         },
       },
       create: {
@@ -296,7 +466,32 @@ export async function saveEditableHomepageContent(
           primaryCtaHref: input.hero.primaryCtaHref.trim(),
           secondaryCtaLabel: input.hero.secondaryCtaLabel.trim(),
           secondaryCtaHref: input.hero.secondaryCtaHref.trim(),
-          heroImages: input.hero.heroImages.map((url) => url.trim()).filter(Boolean),
+          heroImages: syncedHeroImages,
+          heroMedia: heroMediaMetadata,
+        },
+      },
+    }),
+    prisma.pageContent.upsert({
+      where: { sectionKey: SCHEMES_PREVIEW_SECTION_KEY },
+      update: {
+        title: input.schemesPreview.title.trim(),
+        metadata: {
+          eyebrow: input.schemesPreview.eyebrow.trim(),
+          highlightedTitle: input.schemesPreview.highlightedTitle.trim(),
+          viewAllLabel: input.schemesPreview.viewAllLabel.trim(),
+          viewAllHref: input.schemesPreview.viewAllHref.trim(),
+          cardCtaLabel: input.schemesPreview.cardCtaLabel.trim(),
+        },
+      },
+      create: {
+        sectionKey: SCHEMES_PREVIEW_SECTION_KEY,
+        title: input.schemesPreview.title.trim(),
+        metadata: {
+          eyebrow: input.schemesPreview.eyebrow.trim(),
+          highlightedTitle: input.schemesPreview.highlightedTitle.trim(),
+          viewAllLabel: input.schemesPreview.viewAllLabel.trim(),
+          viewAllHref: input.schemesPreview.viewAllHref.trim(),
+          cardCtaLabel: input.schemesPreview.cardCtaLabel.trim(),
         },
       },
     }),
@@ -310,6 +505,15 @@ export async function saveEditableHomepageContent(
           highlightedTitle: input.ctaBanner.highlightedTitle.trim(),
           formTitle: input.ctaBanner.formTitle.trim(),
           submitLabel: input.ctaBanner.submitLabel.trim(),
+          submitHref: input.ctaBanner.submitHref.trim(),
+          placeholderName: input.ctaBanner.placeholderName.trim(),
+          placeholderEmail: input.ctaBanner.placeholderEmail.trim(),
+          placeholderPhone: input.ctaBanner.placeholderPhone.trim(),
+          assurancesText: input.ctaBanner.assurancesText.trim(),
+          assurances: input.ctaBanner.assurancesText
+            .split("\n")
+            .map((item) => item.trim())
+            .filter(Boolean),
         },
       },
       create: {
@@ -321,14 +525,54 @@ export async function saveEditableHomepageContent(
           highlightedTitle: input.ctaBanner.highlightedTitle.trim(),
           formTitle: input.ctaBanner.formTitle.trim(),
           submitLabel: input.ctaBanner.submitLabel.trim(),
+          submitHref: input.ctaBanner.submitHref.trim(),
+          placeholderName: input.ctaBanner.placeholderName.trim(),
+          placeholderEmail: input.ctaBanner.placeholderEmail.trim(),
+          placeholderPhone: input.ctaBanner.placeholderPhone.trim(),
+          assurancesText: input.ctaBanner.assurancesText.trim(),
+          assurances: input.ctaBanner.assurancesText
+            .split("\n")
+            .map((item) => item.trim())
+            .filter(Boolean),
         },
       },
     }),
   ]);
+
+  return savePartialPageVisibility(
+    HOME_VISIBILITY_KEY,
+    HOME_SECTION_KEYS,
+    visibilityPartial,
+  ) as Promise<HomeSectionVisibility>;
 }
 
-export function parseHomepageFormData(formData: FormData): EditableHomepageContent {
+export async function mergeHomepageVisibilityFromFormData(
+  formData: FormData,
+  keys: readonly (typeof HOME_SECTION_KEYS)[number][] = HOME_VISIBILITY_FORM_KEYS,
+): Promise<HomeSectionVisibility> {
+  const partial = parsePartialVisibilityFromFormData(formData, keys);
+  return savePartialPageVisibility(
+    HOME_VISIBILITY_KEY,
+    HOME_SECTION_KEYS,
+    partial,
+  ) as Promise<HomeSectionVisibility>;
+}
+
+export function parseHomepageFormData(formData: FormData): HomepageContentFields {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
+  const readActive = (name: string) => formData.get(name) === "1";
+
+  const heroMedia = Array.from({ length: HERO_MEDIA_SLOTS }, (_, index) => {
+    const slot = index + 1;
+    const url = read(`hero_media${slot}_url`);
+    return {
+      type: read(`hero_media${slot}_type`) === "video" ? ("video" as const) : ("image" as const),
+      url,
+      posterUrl: read(`hero_media${slot}_posterUrl`),
+      displayOrder: slot,
+      active: readActive(`hero_media${slot}_active`) || Boolean(url),
+    };
+  });
 
   return {
     hero: {
@@ -341,9 +585,8 @@ export function parseHomepageFormData(formData: FormData): EditableHomepageConte
       secondaryCtaLabel: read("hero_secondaryCtaLabel"),
       secondaryCtaHref: read("hero_secondaryCtaHref"),
       backgroundImageUrl: read("hero_backgroundImageUrl"),
-      heroImages: Array.from({ length: HERO_BACKGROUND_IMAGE_SLOTS }, (_, index) =>
-        read(`hero_image${index + 1}`),
-      ),
+      heroImages: syncHeroImagesFromMedia(heroMedia),
+      heroMedia,
     },
     ctaBanner: {
       eyebrow: read("cta_eyebrow"),
@@ -352,18 +595,45 @@ export function parseHomepageFormData(formData: FormData): EditableHomepageConte
       description: read("cta_description"),
       formTitle: read("cta_formTitle"),
       submitLabel: read("cta_submitLabel"),
+      submitHref: read("cta_submitHref"),
+      placeholderName: read("cta_placeholderName"),
+      placeholderEmail: read("cta_placeholderEmail"),
+      placeholderPhone: read("cta_placeholderPhone"),
+      assurancesText: read("cta_assurancesText"),
+    },
+    schemesPreview: {
+      eyebrow: read("schemes_eyebrow"),
+      title: read("schemes_title"),
+      highlightedTitle: read("schemes_highlightedTitle"),
+      viewAllLabel: read("schemes_viewAllLabel"),
+      viewAllHref: read("schemes_viewAllHref"),
+      cardCtaLabel: read("schemes_cardCtaLabel"),
     },
   };
 }
 
-export function isValidHomepageContent(content: EditableHomepageContent): boolean {
-  const heroValues = Object.values(content.hero);
+export function parseHomepageVisibilityFromFormData(
+  formData: FormData,
+): Partial<HomeSectionVisibility> {
+  return parsePartialVisibilityFromFormData(
+    formData,
+    HOME_VISIBILITY_FORM_KEYS,
+  ) as Partial<HomeSectionVisibility>;
+}
+
+export function isValidHomepageContent(content: HomepageContentFields): boolean {
+  const { heroImages: _heroImages, heroMedia: _heroMedia, ...heroScalars } = content.hero;
+  const heroValues = Object.values(heroScalars);
   const ctaValues = Object.values(content.ctaBanner);
+  const schemesValues = Object.values(content.schemesPreview);
 
   return (
     heroValues.every(Boolean) &&
     ctaValues.every(Boolean) &&
+    schemesValues.every(Boolean) &&
     content.hero.primaryCtaHref.startsWith("/") &&
-    content.hero.secondaryCtaHref.startsWith("/")
+    content.hero.secondaryCtaHref.startsWith("/") &&
+    content.ctaBanner.submitHref.startsWith("/") &&
+    content.schemesPreview.viewAllHref.startsWith("/")
   );
 }

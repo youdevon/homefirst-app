@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import NewsForm from "@/components/admin/NewsForm";
 import { getNewsItemById } from "@/lib/news-data";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
@@ -30,16 +30,15 @@ export default async function AdminEditNewsPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">News & Notices</p>
-          <h1>Edit News Item</h1>
-          <p className="admin-lead">Update {item.title}.</p>
-        </div>
-        <Link href="/admin/news" className="admin-back-link">
-          ← Back to news
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="News & Notices"
+        title="Edit News Item"
+        lead={`Update ${item.title}.`}
+        backHref="/admin/news"
+        backLabel="← Back to news"
+        previewHref={item.published !== false ? `/media/${item.slug}` : undefined}
+        previewLabel="Preview article"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -47,7 +46,7 @@ export default async function AdminEditNewsPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <NewsForm
           item={item}
           action={`/api/admin/news/${item.id}`}

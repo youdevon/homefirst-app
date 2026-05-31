@@ -36,6 +36,7 @@ model Leader {
   photoUrl     String
   displayOrder Int      @default(0)
   active       Boolean  @default(true)
+  personType   String   @default("LEADER")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

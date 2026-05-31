@@ -1,27 +1,33 @@
 import Link from "next/link";
 import type { EditableLeader } from "@/lib/leaders-data";
+import { LEADER_PERSON_TYPE_LABELS } from "@/lib/leader-person-type";
 
 type LeadersTableProps = {
   leaders: EditableLeader[];
+  emptyMessage?: string;
 };
 
-export default function LeadersTable({ leaders }: LeadersTableProps) {
+export default function LeadersTable({
+  leaders,
+  emptyMessage = "No people yet. Add the first leadership or board profile.",
+}: LeadersTableProps) {
   if (leaders.length === 0) {
     return (
       <div className="admin-placeholder">
-        <p>No leaders yet. Add the first leadership profile.</p>
+        <p>{emptyMessage}</p>
       </div>
     );
   }
 
   return (
     <div className="admin-table-wrap">
-      <table className="admin-table">
+      <table className="admin-table admin-table-compact">
         <thead>
           <tr>
-            <th>Order</th>
+            <th>Display order</th>
             <th>Name</th>
-            <th>Title</th>
+            <th>Position</th>
+            <th>Type</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -32,6 +38,7 @@ export default function LeadersTable({ leaders }: LeadersTableProps) {
               <td>{leader.displayOrder}</td>
               <td>{leader.name}</td>
               <td>{leader.title}</td>
+              <td>{LEADER_PERSON_TYPE_LABELS[leader.personType]}</td>
               <td>
                 <span
                   className={

@@ -8,6 +8,7 @@ import {
   AUDIT_ENTITY_TYPES,
   logAuditEvent,
 } from "@/lib/audit-log";
+import { getLeaderPersonTypeAuditLabel } from "@/lib/leader-person-type";
 import { getLeaderById, setLeaderActive } from "@/lib/leaders-data";
 
 export const dynamic = "force-dynamic";
@@ -35,16 +36,25 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     await setLeaderActive(id, active);
 
+    const personLabel = getLeaderPersonTypeAuditLabel(leader.personType);
+    const actionVerb = active ? "activated" : "deactivated";
+
     await logAuditEvent({
       actor: session,
       request,
       action: active ? AUDIT_ACTIONS.LEADER_ACTIVATED : AUDIT_ACTIONS.LEADER_DEACTIVATED,
-      entityType: AUDIT_ENTITY_TYPES.LEADER,
+      entityType:
+        leader.personType === "BOARD"
+          ? AUDIT_ENTITY_TYPES.BOARD_MEMBER
+          : AUDIT_ENTITY_TYPES.LEADER,
       entityName: leader.name,
-      description: `${session.name} ${active ? "activated" : "deactivated"} leader profile: ${leader.name}.`,
+      description: `${session.name} ${actionVerb} ${personLabel}: ${leader.name}.`,
     });
 
-    return redirectTo(request, "/admin/leaders?saved=1");
+    return redirectTo(
+      request,
+      `/admin/leaders?saved=1&type=${leader.personType}`,
+    );
   } catch {
     return redirectTo(request, "/admin/leaders?error=validation");
   }

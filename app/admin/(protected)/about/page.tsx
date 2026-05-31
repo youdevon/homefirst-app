@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminScopeNotice from "@/components/admin/AdminScopeNotice";
 import AboutContentForm from "@/components/admin/AboutContentForm";
 import { getEditableAboutContent } from "@/lib/about-content-data";
@@ -25,19 +25,12 @@ export default async function AdminAboutPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Page Content</p>
-          <h1>About Us Page</h1>
-          <p className="admin-lead">
-            Edit About page body content including hero, vision, mission,
-            highlights, images, and the leadership section heading.
-          </p>
-        </div>
-        <Link href="/admin/dashboard" className="admin-back-link">
-          ← Back to dashboard
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Page Content"
+        title="About Us Page"
+        lead="Edit About page body content including hero, vision, mission, highlights, images, and the leadership section heading."
+        previewHref="/about"
+      />
 
       <AdminScopeNotice
         manages={[
@@ -68,7 +61,7 @@ export default async function AdminAboutPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <AboutContentForm content={content} imageFiles={mediaAssets.imageFiles} />
       </div>
     </div>

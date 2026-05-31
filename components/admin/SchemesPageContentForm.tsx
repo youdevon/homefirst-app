@@ -1,9 +1,10 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
-import type { EditableSchemesPageContent } from "@/lib/schemes-page-content-data";
+import type { PublicSchemesPageContent } from "@/lib/schemes-page-content-data";
 import type { MediaSelectorOption } from "@/lib/media-data";
 
 type SchemesPageContentFormProps = {
-  content: EditableSchemesPageContent;
+  content: PublicSchemesPageContent;
   imageFiles: MediaSelectorOption[];
 };
 
@@ -15,11 +16,15 @@ export default function SchemesPageContentForm({
     <form
       method="post"
       action="/api/admin/schemes-page"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Page Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Page Hero"
+        defaultOpen
+        visibilityName="visibility_hero"
+        visibilityEnabled={content.visibility.hero}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input type="text" name="hero_eyebrow" defaultValue={content.hero.eyebrow} required />
@@ -47,11 +52,15 @@ export default function SchemesPageContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Schemes List Intro</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Schemes List Intro"
+        defaultOpen={false}
+        visibilityName="visibility_listIntro"
+        visibilityEnabled={content.visibility.listIntro}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input type="text" name="list_eyebrow" defaultValue={content.listIntro.eyebrow} required />
@@ -69,11 +78,25 @@ export default function SchemesPageContentForm({
             <textarea name="list_lead" defaultValue={content.listIntro.lead} required />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Choosing a Scheme Section</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Scheme listing"
+        defaultOpen={false}
+        lead="Turn off to hide housing scheme cards on the page."
+        visibilityName="visibility_schemeListing"
+        visibilityEnabled={content.visibility.schemeListing}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Choosing a Scheme Section"
+        defaultOpen={false}
+        visibilityName="visibility_chooseSection"
+        visibilityEnabled={content.visibility.chooseSection}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input type="text" name="choose_eyebrow" defaultValue={content.chooseSection.eyebrow} required />
@@ -93,7 +116,7 @@ export default function SchemesPageContentForm({
           {content.chooseSection.items.map((item, index) => (
             <div className="admin-field admin-field-full" key={item.title}>
               <span>{`Step ${index + 1}`}</span>
-              <div className="admin-form-grid">
+              <div className="admin-form-grid-2">
                 <label className="admin-field">
                   <span>Title</span>
                   <input
@@ -115,11 +138,15 @@ export default function SchemesPageContentForm({
             </div>
           ))}
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Page Call to Action</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Page Call to Action"
+        defaultOpen={false}
+        visibilityName="visibility_cta"
+        visibilityEnabled={content.visibility.cta}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Title</span>
             <input type="text" name="cta_title" defaultValue={content.cta.title} required />
@@ -149,7 +176,7 @@ export default function SchemesPageContentForm({
             <input type="text" name="cta_secondaryHref" defaultValue={content.cta.secondaryHref} required />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
       <div className="admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">

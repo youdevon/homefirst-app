@@ -43,3 +43,4 @@ next-env.d.ts
 # uploaded media (keep folder structure)
 /public/uploads/**/*
 !/public/uploads/**/.gitkeep
+.env

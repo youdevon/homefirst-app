@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import NewsForm from "@/components/admin/NewsForm";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
@@ -17,18 +17,13 @@ export default async function AdminNewNewsPage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">News & Notices</p>
-          <h1>Add News Item</h1>
-          <p className="admin-lead">
-            Create a new news card for the homepage.
-          </p>
-        </div>
-        <Link href="/admin/news" className="admin-back-link">
-          ← Back to news
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="News & Notices"
+        title="Add News Item"
+        lead="Create a news or notice article for the homepage, media page, and article pages."
+        backHref="/admin/news"
+        backLabel="← Back to news"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -36,7 +31,7 @@ export default async function AdminNewNewsPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <NewsForm
           action="/api/admin/news"
           submitLabel="Create News Item"

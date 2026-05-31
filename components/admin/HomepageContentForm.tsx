@@ -1,30 +1,39 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
+import HeroMediaItemFields from "@/components/admin/HeroMediaItemFields";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import {
-  HERO_BACKGROUND_IMAGE_SLOTS,
   type EditableHomepageContent,
 } from "@/lib/homepage-content-data";
+import { HERO_MEDIA_SLOTS } from "@/lib/hero-media";
 import type { MediaSelectorOption } from "@/lib/media-data";
 
 type HomepageContentFormProps = {
   content: EditableHomepageContent;
   imageFiles: MediaSelectorOption[];
+  videoFiles: MediaSelectorOption[];
 };
 
 export default function HomepageContentForm({
   content,
   imageFiles,
+  videoFiles,
 }: HomepageContentFormProps) {
   return (
     <form
       method="post"
       action="/api/admin/homepage"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Homepage Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Hero content"
+        lead="Main headline, description, and buttons shown over the homepage hero."
+        visibilityName="visibility_hero"
+        visibilityEnabled={content.visibility.hero}
+        defaultOpen
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field admin-field-full">
-            <span>Badge</span>
+            <span>Badge / eyebrow</span>
             <input
               type="text"
               name="hero_badge"
@@ -34,7 +43,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Title</span>
+            <span>Hero title</span>
             <input
               type="text"
               name="hero_title"
@@ -59,11 +68,12 @@ export default function HomepageContentForm({
               name="hero_description"
               defaultValue={content.hero.description}
               required
+              rows={3}
             />
           </label>
 
           <label className="admin-field">
-            <span>Primary CTA label</span>
+            <span>Primary button label</span>
             <input
               type="text"
               name="hero_primaryCtaLabel"
@@ -73,7 +83,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Primary CTA link</span>
+            <span>Primary button link</span>
             <input
               type="text"
               name="hero_primaryCtaHref"
@@ -83,7 +93,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Secondary CTA label</span>
+            <span>Secondary button label</span>
             <input
               type="text"
               name="hero_secondaryCtaLabel"
@@ -93,7 +103,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Secondary CTA link</span>
+            <span>Secondary button link</span>
             <input
               type="text"
               name="hero_secondaryCtaHref"
@@ -103,7 +113,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field admin-field-full">
-            <span>Background image URL (fallback)</span>
+            <span>Background image (fallback)</span>
             <AdminMediaUrlField
               name="hero_backgroundImageUrl"
               defaultValue={content.hero.backgroundImageUrl}
@@ -111,33 +121,127 @@ export default function HomepageContentForm({
               required
               placeholder="/uploads/images/hero-background.jpg"
             />
+            <span className="admin-form-help">
+              Used when no hero media items are active.
+            </span>
           </label>
+        </div>
+      </AdminFormSection>
 
-          <div className="admin-field admin-field-full">
-            <span>Hero slideshow images (optional)</span>
-            <p className="admin-form-help">
-              Add up to five images for the homepage hero slideshow. If none are
-              saved, the fallback background image above is used.
-            </p>
-          </div>
-
-          {Array.from({ length: HERO_BACKGROUND_IMAGE_SLOTS }, (_, index) => (
-            <label className="admin-field admin-field-full" key={index}>
-              <span>{`Hero background image ${index + 1}`}</span>
-              <AdminMediaUrlField
-                name={`hero_image${index + 1}`}
-                defaultValue={content.hero.heroImages[index] ?? ""}
-                options={imageFiles}
-                placeholder={`/uploads/images/hero-${index + 1}.jpg`}
-              />
-            </label>
+      <AdminFormSection
+        title="Hero media"
+        lead="Up to 10 images or videos. The homepage cycles through active items in order."
+        defaultOpen
+      >
+        <div className="admin-hero-media-list">
+          {Array.from({ length: HERO_MEDIA_SLOTS }, (_, index) => (
+            <HeroMediaItemFields
+              key={index + 1}
+              slot={index + 1}
+              item={content.hero.heroMedia[index]}
+              imageFiles={imageFiles}
+              videoFiles={videoFiles}
+            />
           ))}
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">CTA Banner</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Housing schemes preview"
+        lead="Heading shown above scheme cards. Individual schemes are managed in Housing Schemes."
+        visibilityName="visibility_schemesPreview"
+        visibilityEnabled={content.visibility.schemesPreview}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
+          <label className="admin-field">
+            <span>Section eyebrow</span>
+            <input
+              type="text"
+              name="schemes_eyebrow"
+              defaultValue={content.schemesPreview.eyebrow}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Section title</span>
+            <input
+              type="text"
+              name="schemes_title"
+              defaultValue={content.schemesPreview.title}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Highlighted title</span>
+            <input
+              type="text"
+              name="schemes_highlightedTitle"
+              defaultValue={content.schemesPreview.highlightedTitle}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>View all link label</span>
+            <input
+              type="text"
+              name="schemes_viewAllLabel"
+              defaultValue={content.schemesPreview.viewAllLabel}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>View all link URL</span>
+            <input
+              type="text"
+              name="schemes_viewAllHref"
+              defaultValue={content.schemesPreview.viewAllHref}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Scheme card button label</span>
+            <input
+              type="text"
+              name="schemes_cardCtaLabel"
+              defaultValue={content.schemesPreview.cardCtaLabel}
+              required
+            />
+          </label>
+        </div>
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Application process"
+        lead="Section visibility only. Content comes from site defaults."
+        visibilityName="visibility_applicationSteps"
+        visibilityEnabled={content.visibility.applicationSteps}
+        defaultOpen={false}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Services preview"
+        visibilityName="visibility_servicesPreview"
+        visibilityEnabled={content.visibility.servicesPreview}
+        defaultOpen={false}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="CTA / Help section"
+        visibilityName="visibility_cta"
+        visibilityEnabled={content.visibility.cta}
+        defaultOpen={false}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input
@@ -149,7 +253,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Title</span>
+            <span>Section title</span>
             <input
               type="text"
               name="cta_title"
@@ -174,11 +278,12 @@ export default function HomepageContentForm({
               name="cta_description"
               defaultValue={content.ctaBanner.description}
               required
+              rows={3}
             />
           </label>
 
           <label className="admin-field">
-            <span>Form title</span>
+            <span>Form heading</span>
             <input
               type="text"
               name="cta_formTitle"
@@ -188,7 +293,7 @@ export default function HomepageContentForm({
           </label>
 
           <label className="admin-field">
-            <span>Submit label</span>
+            <span>Submit button label</span>
             <input
               type="text"
               name="cta_submitLabel"
@@ -196,10 +301,92 @@ export default function HomepageContentForm({
               required
             />
           </label>
-        </div>
-      </div>
 
-      <div className="admin-form-actions">
+          <label className="admin-field">
+            <span>Submit button link</span>
+            <input
+              type="text"
+              name="cta_submitHref"
+              defaultValue={content.ctaBanner.submitHref}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Name field placeholder</span>
+            <input
+              type="text"
+              name="cta_placeholderName"
+              defaultValue={content.ctaBanner.placeholderName}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Email field placeholder</span>
+            <input
+              type="text"
+              name="cta_placeholderEmail"
+              defaultValue={content.ctaBanner.placeholderEmail}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Phone field placeholder</span>
+            <input
+              type="text"
+              name="cta_placeholderPhone"
+              defaultValue={content.ctaBanner.placeholderPhone}
+              required
+            />
+          </label>
+
+          <label className="admin-field admin-field-full">
+            <span>Assurance badges</span>
+            <textarea
+              name="cta_assurancesText"
+              defaultValue={content.ctaBanner.assurancesText}
+              required
+              rows={2}
+              placeholder="One short badge per line"
+            />
+            <span className="admin-form-help">
+              Small trust labels shown below the form, one per line.
+            </span>
+          </label>
+        </div>
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Testimonials"
+        visibilityName="visibility_testimonials"
+        visibilityEnabled={content.visibility.testimonials}
+        defaultOpen={false}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Latest updates"
+        lead="Articles are managed in News & Notices."
+        visibilityName="visibility_newsPreview"
+        visibilityEnabled={content.visibility.newsPreview}
+        defaultOpen={false}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Contact strip"
+        visibilityName="visibility_contactStrip"
+        visibilityEnabled={content.visibility.contactStrip}
+        defaultOpen={false}
+      >
+        {null}
+      </AdminFormSection>
+
+      <div className="admin-save-bar admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">
           Save Homepage Content
         </button>

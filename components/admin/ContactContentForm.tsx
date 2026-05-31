@@ -1,3 +1,4 @@
+import AdminFormSection from "@/components/admin/AdminFormSection";
 import AdminMediaUrlField from "@/components/admin/AdminMediaUrlField";
 import type { EditableContactContent } from "@/lib/contact-content-data";
 import { getContactCardSlots } from "@/lib/contact-content-data";
@@ -18,11 +19,15 @@ export default function ContactContentForm({
     <form
       method="post"
       action="/api/admin/contact"
-      className="admin-settings-form"
+      className="admin-settings-form admin-form-stack"
     >
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Contact Hero</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Contact Hero"
+        defaultOpen
+        visibilityName="visibility_hero"
+        visibilityEnabled={content.visibility.hero}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Eyebrow</span>
             <input
@@ -73,11 +78,15 @@ export default function ContactContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Contact Details</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection
+        title="Contact Details"
+        defaultOpen={false}
+        visibilityName="visibility_contactDetails"
+        visibilityEnabled={content.visibility.contactDetails}
+      >
+        <div className="admin-form-grid-2">
           <label className="admin-field admin-field-full">
             <span>Office name</span>
             <input
@@ -147,11 +156,10 @@ export default function ContactContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Instructions</h2>
-        <div className="admin-form-grid">
+      <AdminFormSection title="Instructions" defaultOpen={false}>
+        <div className="admin-form-grid-2">
           <label className="admin-field">
             <span>Title</span>
             <input
@@ -191,19 +199,116 @@ export default function ContactContentForm({
             />
           </label>
         </div>
-      </div>
+      </AdminFormSection>
 
-      <div className="admin-form-section">
-        <h2 className="admin-form-section-title">Contact Cards</h2>
-        <p className="admin-form-help">
-          Manage quick-action cards shown on the contact page. Leave a card title
-          empty to omit it.
-        </p>
+      <AdminFormSection
+        title="Contact form text"
+        defaultOpen={false}
+        visibilityName="visibility_enquiryForm"
+        visibilityEnabled={content.visibility.enquiryForm}
+      >
+        <div className="admin-form-grid-2">
+          <label className="admin-field">
+            <span>Details eyebrow</span>
+            <input
+              type="text"
+              name="form_detailsEyebrow"
+              defaultValue={content.formCopy.detailsEyebrow}
+              required
+            />
+          </label>
 
+          <label className="admin-field">
+            <span>Form title</span>
+            <input
+              type="text"
+              name="form_title"
+              defaultValue={content.formCopy.title}
+              required
+            />
+          </label>
+
+          <label className="admin-field admin-field-full">
+            <span>Form description</span>
+            <textarea
+              name="form_description"
+              defaultValue={content.formCopy.description}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Name label</span>
+            <input
+              type="text"
+              name="form_nameLabel"
+              defaultValue={content.formCopy.nameLabel}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Email label</span>
+            <input
+              type="text"
+              name="form_emailLabel"
+              defaultValue={content.formCopy.emailLabel}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Phone label</span>
+            <input
+              type="text"
+              name="form_phoneLabel"
+              defaultValue={content.formCopy.phoneLabel}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Message label</span>
+            <input
+              type="text"
+              name="form_messageLabel"
+              defaultValue={content.formCopy.messageLabel}
+              required
+            />
+          </label>
+
+          <label className="admin-field">
+            <span>Submit label</span>
+            <input
+              type="text"
+              name="form_submitLabel"
+              defaultValue={content.formCopy.submitLabel}
+              required
+            />
+          </label>
+        </div>
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Map / location"
+        defaultOpen={false}
+        visibilityName="visibility_map"
+        visibilityEnabled={content.visibility.map}
+      >
+        {null}
+      </AdminFormSection>
+
+      <AdminFormSection
+        title="Contact Cards"
+        defaultOpen={false}
+        lead="Manage quick-action cards shown on the contact page. Leave a card title empty to omit it."
+        visibilityName="visibility_contactCards"
+        visibilityEnabled={content.visibility.contactCards}
+      >
         {cardSlots.map((card, index) => (
           <div className="admin-card-slot" key={`contact-card-${index}`}>
             <h3 className="admin-card-slot-title">Card {index + 1}</h3>
-            <div className="admin-form-grid">
+            <div className="admin-form-grid-2">
               <label className="admin-field">
                 <span>Title</span>
                 <input
@@ -273,7 +378,7 @@ export default function ContactContentForm({
             </div>
           </div>
         ))}
-      </div>
+      </AdminFormSection>
 
       <div className="admin-form-actions">
         <button type="submit" className="admin-btn admin-btn-primary admin-btn-dark">

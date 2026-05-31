@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import LeaderForm from "@/components/admin/LeaderForm";
 import { getLeaderById } from "@/lib/leaders-data";
+import { LEADER_PERSON_TYPE_ADMIN_LABELS } from "@/lib/leader-person-type";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
 export const dynamic = "force-dynamic";
@@ -27,19 +28,17 @@ export default async function AdminEditLeaderPage({
   }
 
   const showValidationError = query.error === "validation";
+  const typeLabel = LEADER_PERSON_TYPE_ADMIN_LABELS[leader.personType];
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Leaders</p>
-          <h1>Edit Leader</h1>
-          <p className="admin-lead">Update {leader.name}&apos;s profile.</p>
-        </div>
-        <Link href="/admin/leaders" className="admin-back-link">
-          ← Back to leaders
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Leaders & Board"
+        title={`Edit ${typeLabel}`}
+        lead={`Update ${leader.name}'s profile.`}
+        backHref={`/admin/leaders?type=${leader.personType}`}
+        backLabel="← Back to list"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -47,11 +46,11 @@ export default async function AdminEditLeaderPage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <LeaderForm
           leader={leader}
           action={`/api/admin/leaders/${leader.id}`}
-          submitLabel="Save Leader"
+          submitLabel={`Save ${typeLabel}`}
           imageFiles={mediaAssets.imageFiles}
         />
       </div>

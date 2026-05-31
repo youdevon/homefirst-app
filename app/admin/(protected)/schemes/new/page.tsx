@@ -1,4 +1,4 @@
-import Link from "next/link";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import SchemeForm from "@/components/admin/SchemeForm";
 import { getAdminMediaSelectorAssets } from "@/lib/media-data";
 
@@ -17,18 +17,13 @@ export default async function AdminNewSchemePage({
 
   return (
     <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <p className="admin-eyebrow">Housing Schemes</p>
-          <h1>Add Scheme</h1>
-          <p className="admin-lead">
-            Create a new housing scheme card for the homepage.
-          </p>
-        </div>
-        <Link href="/admin/schemes" className="admin-back-link">
-          ← Back to schemes
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Housing Schemes"
+        title="Add Scheme"
+        lead="Create a new housing scheme card for the homepage and schemes page."
+        backHref="/admin/schemes"
+        backLabel="← Back to schemes"
+      />
 
       {showValidationError ? (
         <div className="admin-alert admin-alert-error" role="alert">
@@ -36,7 +31,7 @@ export default async function AdminNewSchemePage({
         </div>
       ) : null}
 
-      <div className="admin-panel">
+      <div className="admin-form-stack">
         <SchemeForm
           action="/api/admin/schemes"
           submitLabel="Create Scheme"

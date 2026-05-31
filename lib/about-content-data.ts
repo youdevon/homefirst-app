@@ -4,11 +4,20 @@ import {
   aboutImages as contentAboutImages,
   aboutIntro as contentAboutIntro,
   leadershipSection as contentLeadershipSection,
+  boardSection as contentBoardSection,
   mission as contentMission,
   vision as contentVision,
 } from "@/content/about";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import {
+  ABOUT_SECTION_KEYS,
+  ABOUT_VISIBILITY_KEY,
+  getPageVisibility,
+  parsePartialVisibilityFromFormData,
+  savePartialPageVisibility,
+  type AboutSectionVisibility,
+} from "@/lib/section-visibility";
 
 export const ABOUT_HERO_KEY = "about.hero";
 export const ABOUT_INTRO_KEY = "about.intro";
@@ -17,6 +26,7 @@ export const ABOUT_MISSION_KEY = "about.mission";
 export const ABOUT_HIGHLIGHTS_KEY = "about.highlights";
 export const ABOUT_IMAGES_KEY = "about.images";
 export const ABOUT_LEADERSHIP_HEADER_KEY = "about.leadershipHeader";
+export const ABOUT_BOARD_HEADER_KEY = "about.boardHeader";
 
 export type EditableAboutHero = {
   eyebrow: string;
@@ -67,6 +77,8 @@ export type EditableAboutLeadershipHeader = {
   description: string;
 };
 
+export type EditableAboutBoardHeader = EditableAboutLeadershipHeader;
+
 export type EditableAboutContent = {
   hero: EditableAboutHero;
   intro: EditableAboutIntro;
@@ -75,7 +87,11 @@ export type EditableAboutContent = {
   highlights: EditableAboutHighlights;
   images: EditableAboutImages;
   leadershipHeader: EditableAboutLeadershipHeader;
+  boardHeader: EditableAboutBoardHeader;
+  visibility: AboutSectionVisibility;
 };
+
+export type AboutContentFields = Omit<EditableAboutContent, "visibility">;
 
 export type PublicAboutHighlight = {
   value: string;
@@ -116,7 +132,20 @@ export type PublicAboutContent = {
     titleEmphasis: string;
     lead: string;
   };
+  boardSection: {
+    eyebrow: string;
+    title: string;
+    titleEmphasis: string;
+    lead: string;
+  };
+  visibility: AboutSectionVisibility;
 };
+
+export {
+  ABOUT_VISIBILITY_KEY,
+  ABOUT_SECTION_KEYS,
+  ABOUT_SECTION_LABELS,
+} from "@/lib/section-visibility";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -192,6 +221,15 @@ export function getDefaultAboutLeadershipHeader(): EditableAboutLeadershipHeader
   };
 }
 
+export function getDefaultAboutBoardHeader(): EditableAboutBoardHeader {
+  return {
+    eyebrow: contentBoardSection.eyebrow,
+    title: contentBoardSection.title,
+    highlightedTitle: contentBoardSection.titleEmphasis,
+    description: contentBoardSection.lead,
+  };
+}
+
 export function getDefaultAboutContent(): EditableAboutContent {
   return {
     hero: getDefaultAboutHero(),
@@ -201,6 +239,10 @@ export function getDefaultAboutContent(): EditableAboutContent {
     highlights: getDefaultAboutHighlights(),
     images: getDefaultAboutImages(),
     leadershipHeader: getDefaultAboutLeadershipHeader(),
+    boardHeader: getDefaultAboutBoardHeader(),
+    visibility: Object.fromEntries(
+      ABOUT_SECTION_KEYS.map((key) => [key, true]),
+    ) as AboutSectionVisibility,
   };
 }
 
@@ -376,8 +418,34 @@ function parseLeadershipHeaderRow(
   };
 }
 
+function parseBoardHeaderRow(
+  row: {
+    title: string | null;
+    subtitle: string | null;
+    metadata: Prisma.JsonValue | null;
+  } | null,
+  defaults: EditableAboutBoardHeader,
+): EditableAboutBoardHeader {
+  if (!row) {
+    return defaults;
+  }
+
+  const metadata = asRecord(row.metadata);
+
+  return {
+    eyebrow: asString(metadata.eyebrow, defaults.eyebrow),
+    title: asString(row.title, defaults.title),
+    highlightedTitle: asString(
+      metadata.highlightedTitle ?? metadata.titleEmphasis,
+      defaults.highlightedTitle,
+    ),
+    description: asString(row.subtitle, defaults.description),
+  };
+}
+
 export async function getEditableAboutContent(): Promise<EditableAboutContent> {
   const defaults = getDefaultAboutContent();
+  const visibility = await getPageVisibility(ABOUT_VISIBILITY_KEY, ABOUT_SECTION_KEYS);
 
   const rows = await prisma.pageContent.findMany({
     where: {
@@ -390,6 +458,7 @@ export async function getEditableAboutContent(): Promise<EditableAboutContent> {
           ABOUT_HIGHLIGHTS_KEY,
           ABOUT_IMAGES_KEY,
           ABOUT_LEADERSHIP_HEADER_KEY,
+          ABOUT_BOARD_HEADER_KEY,
         ],
       },
     },
@@ -408,6 +477,11 @@ export async function getEditableAboutContent(): Promise<EditableAboutContent> {
       findRow(ABOUT_LEADERSHIP_HEADER_KEY),
       defaults.leadershipHeader,
     ),
+    boardHeader: parseBoardHeaderRow(
+      findRow(ABOUT_BOARD_HEADER_KEY),
+      defaults.boardHeader,
+    ),
+    visibility: visibility as AboutSectionVisibility,
   };
 }
 
@@ -470,6 +544,13 @@ export function toPublicAboutContent(content: EditableAboutContent): PublicAbout
       titleEmphasis: content.leadershipHeader.highlightedTitle,
       lead: content.leadershipHeader.description,
     },
+    boardSection: {
+      eyebrow: content.boardHeader.eyebrow,
+      title: content.boardHeader.title,
+      titleEmphasis: content.boardHeader.highlightedTitle,
+      lead: content.boardHeader.description,
+    },
+    visibility: content.visibility,
   };
 }
 
@@ -483,8 +564,9 @@ export async function getPublicAboutContent(): Promise<PublicAboutContent> {
 }
 
 export async function saveEditableAboutContent(
-  input: EditableAboutContent,
-): Promise<void> {
+  input: AboutContentFields,
+  visibilityPartial: Partial<AboutSectionVisibility>,
+): Promise<AboutSectionVisibility> {
   await prisma.$transaction([
     prisma.pageContent.upsert({
       where: { sectionKey: ABOUT_HERO_KEY },
@@ -618,10 +700,45 @@ export async function saveEditableAboutContent(
         },
       },
     }),
+    prisma.pageContent.upsert({
+      where: { sectionKey: ABOUT_BOARD_HEADER_KEY },
+      update: {
+        title: input.boardHeader.title.trim(),
+        subtitle: input.boardHeader.description.trim(),
+        metadata: {
+          eyebrow: input.boardHeader.eyebrow.trim(),
+          highlightedTitle: input.boardHeader.highlightedTitle.trim(),
+        },
+      },
+      create: {
+        sectionKey: ABOUT_BOARD_HEADER_KEY,
+        title: input.boardHeader.title.trim(),
+        subtitle: input.boardHeader.description.trim(),
+        metadata: {
+          eyebrow: input.boardHeader.eyebrow.trim(),
+          highlightedTitle: input.boardHeader.highlightedTitle.trim(),
+        },
+      },
+    }),
   ]);
+
+  return savePartialPageVisibility(
+    ABOUT_VISIBILITY_KEY,
+    ABOUT_SECTION_KEYS,
+    visibilityPartial,
+  ) as Promise<AboutSectionVisibility>;
 }
 
-export function parseAboutFormData(formData: FormData): EditableAboutContent {
+export function parseAboutVisibilityFromFormData(
+  formData: FormData,
+): Partial<AboutSectionVisibility> {
+  return parsePartialVisibilityFromFormData(
+    formData,
+    ABOUT_SECTION_KEYS,
+  ) as Partial<AboutSectionVisibility>;
+}
+
+export function parseAboutFormData(formData: FormData): AboutContentFields {
   const read = (name: string) => String(formData.get(name) ?? "").trim();
 
   return {
@@ -667,6 +784,12 @@ export function parseAboutFormData(formData: FormData): EditableAboutContent {
       highlightedTitle: read("leadership_highlightedTitle"),
       description: read("leadership_description"),
     },
+    boardHeader: {
+      eyebrow: read("board_eyebrow"),
+      title: read("board_title"),
+      highlightedTitle: read("board_highlightedTitle"),
+      description: read("board_description"),
+    },
   };
 }
 
@@ -682,7 +805,7 @@ function isValidImageUrl(value: string): boolean {
   );
 }
 
-export function isValidAboutContent(content: EditableAboutContent): boolean {
+export function isValidAboutContent(content: AboutContentFields): boolean {
   const heroValid = Object.values(content.hero).every(Boolean);
   const introValid =
     Boolean(content.intro.eyebrow) &&
@@ -699,6 +822,7 @@ export function isValidAboutContent(content: EditableAboutContent): boolean {
     Boolean(content.images.establishedYear) &&
     Boolean(content.images.establishedLabel);
   const leadershipValid = Object.values(content.leadershipHeader).every(Boolean);
+  const boardValid = Object.values(content.boardHeader).every(Boolean);
   const heroImageValid = isValidImageUrl(content.hero.backgroundImageUrl);
 
   return (
@@ -709,6 +833,7 @@ export function isValidAboutContent(content: EditableAboutContent): boolean {
     highlightsValid &&
     imagesValid &&
     leadershipValid &&
+    boardValid &&
     heroImageValid
   );
 }
